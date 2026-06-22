@@ -32,4 +32,4 @@ Pushing to `main` triggers Render auto-deploy.
 - Address: 123 Grace Way, Atlanta, GA 30303
 - Phone: (555) 123-4567
 - Email: hello@newbeginningmbc.org
-- Pastor: Daniel Moore
+- Pastor: Eric Reid
