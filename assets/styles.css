@@ -454,12 +454,13 @@
     .script-title {
       font-family: "Shadows Into Light", cursive;
       font-size: clamp(42px, 4vw, 56px);
-      line-height: 1.1;
+      line-height: 1.15;
       color: #111;
       transform: rotate(-2deg);
       max-width: 90%;
       overflow: visible;
       margin-left: 20px;
+      padding: 8px 0;
     }
 
 
