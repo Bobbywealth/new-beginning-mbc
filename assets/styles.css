@@ -220,8 +220,8 @@
 
     .hero {
       position: relative;
-      padding: 110px 62px 0;
-      min-height: 760px;
+      padding: 80px 62px 0;
+      min-height: 620px;
       overflow: hidden;
       background:
         radial-gradient(circle at 75% 45%, rgba(255,216,77,.35), transparent 28%),
@@ -265,8 +265,8 @@
     .hero-title {
       max-width: 620px;
       font-family: Anton, Impact, sans-serif;
-      font-size: clamp(74px, 9vw, 148px);
-      line-height: .88;
+      font-size: clamp(56px, 7vw, 96px);
+      line-height: .92;
       letter-spacing: -.015em;
       text-transform: uppercase;
     }
@@ -275,20 +275,20 @@
     .hero-script {
       display: block;
       font-family: "Shadows Into Light", cursive;
-      font-size: clamp(56px, 6.5vw, 100px);
+      font-size: clamp(44px, 5vw, 72px);
       color: #83b6ec;
       text-transform: none;
       letter-spacing: .02em;
       transform: rotate(-2deg);
-      margin-top: 28px;
+      margin-top: 16px;
     }
 
 
     .hero-copy {
       max-width: 430px;
-      margin: 48px 0 40px;
-      font-size: 19px;
-      line-height: 1.75;
+      margin: 32px 0 32px;
+      font-size: 18px;
+      line-height: 1.7;
       color: #222;
     }
 
@@ -369,7 +369,7 @@
     .service-strip {
       position: relative;
       z-index: 4;
-      margin: 54px auto -42px;
+      margin: 50px auto 0;
       width: min(1220px, calc(100% - 40px));
       background: #070707;
       color: #fff;
@@ -438,7 +438,7 @@
 
 
     .welcome {
-      padding-top: 180px;
+      padding-top: 110px;
       background: white;
     }
 
@@ -453,11 +453,12 @@
 
     .script-title {
       font-family: "Shadows Into Light", cursive;
-      font-size: clamp(48px, 4.4vw, 64px);
-      line-height: 1.05;
+      font-size: clamp(42px, 4vw, 56px);
+      line-height: 1.1;
       color: #111;
       transform: rotate(-2deg);
       max-width: 100%;
+      overflow: visible;
     }
 
 
