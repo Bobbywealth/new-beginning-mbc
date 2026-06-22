@@ -1116,7 +1116,8 @@
 
       .pastor-card {
         min-height: 340px;
-        max-width: 320px;
+        width: 100%;
+        max-width: 360px;
         margin: 0 auto;
       }
 
