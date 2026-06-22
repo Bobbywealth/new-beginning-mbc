@@ -312,6 +312,30 @@
     }
 
 
+    .pastor-photo-card {
+      min-height: 485px;
+      border-radius: 52% 48% 44% 56% / 36% 35% 65% 64%;
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(rgba(0,0,0,.04), rgba(0,0,0,.18)),
+        url("/assets/pastor.webp") center top/cover no-repeat;
+      filter: saturate(.95);
+    }
+
+
+    .pastor-photo-card::after {
+      content: "PASTOR DANIEL MOORE";
+      position: absolute;
+      left: 42px;
+      bottom: 40px;
+      background: var(--yellow);
+      width: 168px;
+      height: 168px;
+      border-radius: 50%;
+
+
     .blob-card::after {
       content: "WE LOVE GOD • LOVE PEOPLE";
       position: absolute;
