@@ -318,10 +318,7 @@
       overflow: hidden;
       position: relative;
       box-shadow: var(--shadow);
-      background:
-        linear-gradient(rgba(0,0,0,.04), rgba(0,0,0,.18)),
-        url("/assets/pastor.webp") center top/cover no-repeat;
-      filter: saturate(.95);
+      background: url("/assets/pastor.webp") center top/cover no-repeat;
     }
 
 
@@ -477,9 +474,7 @@
       min-height: 420px;
       border-radius: 22px;
       overflow: hidden;
-      background:
-        linear-gradient(rgba(191,227,255,.22), rgba(191,227,255,.22)),
-        url("/assets/pastor.webp") center top/cover no-repeat;
+      background: url("/assets/pastor.webp") center top/cover no-repeat;
       box-shadow: var(--shadow);
     }
 
