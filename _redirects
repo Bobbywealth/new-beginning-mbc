@@ -1,0 +1,5 @@
+# Force HTTPS
+http://* https://:splat 301!
+
+# 404 fallback to home
+/*    /index.html   404
