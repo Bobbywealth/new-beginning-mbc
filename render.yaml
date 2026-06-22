@@ -1,0 +1,14 @@
+services:
+  - type: static_site
+    name: new-beginning-mbc
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=86400
+    autoDeploy: true

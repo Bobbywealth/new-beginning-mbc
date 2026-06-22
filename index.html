@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Beginning Missionary Baptist Church</title>
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+
+
+  <style>
+    :root {
+      --cream: #fff8eb;
+      --cream-2: #f8efe0;
+      --yellow: #ffd84d;
+      --yellow-soft: #ffe998;
+      --blue: #bfe3ff;
+      --blue-strong: #6aa9e9;
+      --black: #050505;
+      --soft-black: #121212;
+      --gray: #6b6b6b;
+      --line: rgba(0,0,0,.11);
+      --radius: 28px;
+      --shadow: 0 18px 55px rgba(0,0,0,.12);
+    }
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--black);
+      background:
+        radial-gradient(circle at top left, rgba(255,216,77,.24), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(191,227,255,.55), transparent 26%),
+        var(--cream);
+      overflow-x: hidden;
+    }
+
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+
+    .page {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      background: linear-gradient(180deg, #fffaf0 0%, #fff 42%, #fff9ed 100%);
+      min-height: 100vh;
+    }
+
+
+    .nav {
+      height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 46px;
+      background: rgba(255,250,240,.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 290px;
+    }
+
+
+    .brand-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 9px 24px rgba(0,0,0,.18);
+      border: 3px solid rgba(255,255,255,.85);
+      background: #fff;
+    }
+
+
+    .brand-text strong {
+      display: block;
+      font-size: 25px;
+      line-height: .95;
+      letter-spacing: .03em;
+      font-weight: 900;
+    }
+
+
+    .brand-text span {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing: .18em;
+      font-weight: 800;
+      color: #2b2b2b;
+    }
+
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+
+    .nav-links a {
+      position: relative;
+      padding: 12px 0;
+    }
+
+
+    .nav-links a.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 3px;
+      height: 3px;
+      width: 100%;
+      background: var(--yellow);
+      border-radius: 999px;
+    }
+
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 52px;
+      padding: 0 25px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      font-weight: 900;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .25s ease;
+      white-space: nowrap;
+    }
+
+
+    .btn-black {
+      color: white;
+      background: var(--black);
+      box-shadow: 0 14px 26px rgba(0,0,0,.17);
+    }
+
+
+    .btn-black:hover {
+      transform: translateY(-2px);
+      background: #1d1d1d;
+    }
+
+
+    .btn-yellow {
+      background: var(--yellow);
+      color: var(--black);
+      box-shadow: 0 12px 24px rgba(255,206,47,.32);
+    }
+
+
+    .btn-outline {
+      background: white;
+      color: var(--black);
+      border-color: rgba(0,0,0,.12);
+    }
+
+
+    .hamburger {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+
+    .hamburger span,
+    .hamburger span::before,
+    .hamburger span::after {
+      display: block;
+      width: 26px;
+      height: 2px;
+      background: #111;
+      content: "";
+      position: relative;
+    }
+
+
+    .hamburger span::before {
+      position: absolute;
+      top: -8px;
+    }
+
+
+    .hamburger span::after {
+      position: absolute;
+      top: 8px;
+    }
+
+
+    .hero {
+      position: relative;
+      padding: 76px 62px 0;
+      min-height: 700px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, #fff8eb 0%, rgba(255,248,235,.96) 36%, rgba(255,248,235,.35) 62%, rgba(255,248,235,.05) 100%),
+        url("https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1800&q=80") center right/cover no-repeat;
+    }
+
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 75% 45%, rgba(255,216,77,.35), transparent 28%),
+        radial-gradient(circle at 20% 10%, rgba(191,227,255,.42), transparent 25%);
+      pointer-events: none;
+    }
+
+
+    .hero-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr .95fr;
+      align-items: center;
+      gap: 40px;
+    }
+
+
+    .eyebrow {
+      font-size: 14px;
+      line-height: 1;
+      letter-spacing: .26em;
+      font-weight: 900;
+      color: #2168ae;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+
+    .hero-title {
+      max-width: 620px;
+      font-family: Anton, Impact, sans-serif;
+      font-size: clamp(74px, 9vw, 148px);
+      line-height: .88;
+      letter-spacing: -.015em;
+      text-transform: uppercase;
+    }
+
+
+    .hero-script {
+      display: block;
+      font-family: "Shadows Into Light", cursive;
+      font-size: clamp(56px, 6.5vw, 100px);
+      color: #83b6ec;
+      text-transform: none;
+      letter-spacing: .02em;
+      transform: rotate(-2deg);
+      margin-top: 8px;
+    }
+
+
+    .hero-copy {
+      max-width: 430px;
+      margin: 30px 0;
+      font-size: 19px;
+      line-height: 1.75;
+      color: #222;
+    }
+
+
+    .hero-buttons {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+
+    .blob-card {
+      min-height: 485px;
+      border-radius: 52% 48% 44% 56% / 36% 35% 65% 64%;
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(rgba(0,0,0,.04), rgba(0,0,0,.35)),
+        url("https://images.unsplash.com/photo-1528605105345-5344ea20e269?auto=format&fit=crop&w=1200&q=80") center/cover no-repeat;
+      filter: saturate(.95);
+    }
+
+
+    .blob-card::after {
+      content: "WE LOVE GOD • LOVE PEOPLE";
+      position: absolute;
+      left: 42px;
+      bottom: 40px;
+      background: var(--yellow-soft);
+      width: 142px;
+      height: 142px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: .16em;
+      font-weight: 900;
+      padding: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.16);
+    }
+
+
+    .service-strip {
+      position: relative;
+      z-index: 4;
+      margin: 54px auto -42px;
+      width: min(1220px, calc(100% - 40px));
+      background: #070707;
+      color: #fff;
+      border-radius: 22px;
+      box-shadow: 0 24px 55px rgba(0,0,0,.24);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: hidden;
+    }
+
+
+    .service-item {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding: 30px 34px;
+      border-right: 1px solid rgba(255,255,255,.18);
+    }
+
+
+    .service-item:last-child {
+      border-right: 0;
+    }
+
+
+    .icon {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,216,77,.14);
+      border: 2px solid var(--yellow);
+      color: var(--yellow);
+      font-size: 24px;
+    }
+
+
+    .icon.blue {
+      background: rgba(191,227,255,.12);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+
+    .service-item small {
+      display: block;
+      font-size: 12px;
+      letter-spacing: .16em;
+      font-weight: 900;
+      margin-bottom: 7px;
+      color: rgba(255,255,255,.8);
+    }
+
+
+    .service-item strong {
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+
+    section {
+      padding: 96px 62px;
+    }
+
+
+    .welcome {
+      padding-top: 132px;
+      background: white;
+    }
+
+
+    .welcome-grid {
+      display: grid;
+      grid-template-columns: .9fr 1fr .9fr;
+      align-items: center;
+      gap: 55px;
+    }
+
+
+    .script-title {
+      font-family: "Shadows Into Light", cursive;
+      font-size: clamp(54px, 5vw, 88px);
+      line-height: 1;
+      color: #111;
+      transform: rotate(-2deg);
+    }
+
+
+    .script-title span {
+      color: #83b6ec;
+      display: block;
+      text-decoration: underline;
+      text-decoration-color: var(--yellow);
+      text-decoration-thickness: 5px;
+      text-underline-offset: 7px;
+    }
+
+
+    .pastor-card {
+      min-height: 300px;
+      border-radius: 22px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(191,227,255,.22), rgba(191,227,255,.22)),
+        url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80") center/cover no-repeat;
+      box-shadow: var(--shadow);
+    }
+
+
+    .welcome-copy {
+      font-size: 18px;
+      line-height: 1.85;
+      color: #222;
+    }
+
+
+    .signature {
+      font-family: "Shadows Into Light", cursive;
+      font-size: 36px;
+      margin-top: 26px;
+    }
+
+
+    .pastor-role {
+      font-size: 12px;
+      letter-spacing: .22em;
+      font-weight: 900;
+      color: #555;
+    }
+
+
+    .ministries {
+      background: linear-gradient(180deg, #fff 0%, #fff8eb 100%);
+      padding-top: 30px;
+    }
+
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 24px;
+    }
+
+
+    .ministry-card {
+      min-height: 330px;
+      border-radius: 22px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 24px;
+      color: white;
+      box-shadow: 0 18px 38px rgba(0,0,0,.16);
+      background-size: cover;
+      background-position: center;
+      isolation: isolate;
+      transition: .25s ease;
+    }
+
+
+    .ministry-card:hover {
+      transform: translateY(-6px);
+    }
+
+
+    .ministry-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.86) 100%);
+      z-index: -1;
+    }
+
+
+    .ministry-card:nth-child(1) { background-image: url("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=80"); }
+    .ministry-card:nth-child(2) { background-image: url("https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=700&q=80"); }
+    .ministry-card:nth-child(3) { background-image: url("https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=700&q=80"); }
+    .ministry-card:nth-child(4) { background-image: url("https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=700&q=80"); }
+    .ministry-card:nth-child(5) { background-image: url("https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=700&q=80"); }
+    .ministry-card:nth-child(6) { background-image: url("https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80"); }
+
+
+    .pill-icon {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--yellow);
+      color: #111;
+      font-size: 26px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.16);
+    }
+
+
+    .pill-icon.blue {
+      background: var(--blue);
+    }
+
+
+    .ministry-card h3 {
+      font-size: 24px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-bottom: 11px;
+    }
+
+
+    .ministry-card p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(255,255,255,.88);
+      margin-bottom: 18px;
+    }
+
+
+    .ministry-card a {
+      font-size: 12px;
+      letter-spacing: .13em;
+      font-weight: 900;
+    }
+
+
+    .mission-banner {
+      padding: 0 62px 72px;
+      background: #fff8eb;
+    }
+
+
+    .brush {
+      min-height: 100px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: 26px;
+      background:
+        linear-gradient(90deg, rgba(191,227,255,.82), rgba(255,255,255,.78), rgba(191,227,255,.72)),
+        linear-gradient(180deg, transparent, rgba(255,216,77,.12));
+      position: relative;
+      overflow: hidden;
+    }
+
+
+    .brush::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(0,0,0,.12);
+      border-radius: 20px;
+    }
+
+
+    .brush h2 {
+      font-size: clamp(28px, 4vw, 58px);
+      font-family: Anton, sans-serif;
+      letter-spacing: .11em;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+
+
+    .brush h2 span {
+      font-family: "Shadows Into Light", cursive;
+      font-size: 1.25em;
+      color: #111;
+      text-transform: none;
+      letter-spacing: .01em;
+      margin: 0 6px;
+    }
+
+
+    .info-section {
+      background: white;
+      padding-top: 42px;
+    }
+
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr .72fr .75fr;
+      gap: 28px;
+    }
+
+
+    .panel {
+      border-radius: 24px;
+      background: #fffaf0;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 14px 38px rgba(0,0,0,.08);
+      padding: 34px;
+    }
+
+
+    .panel.black {
+      background: #090909;
+      color: white;
+    }
+
+
+    .panel.yellow {
+      background:
+        radial-gradient(circle at 90% 5%, rgba(255,255,255,.5), transparent 22%),
+        linear-gradient(135deg, #ffe36b, #ffd244);
+    }
+
+
+    .section-kicker {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .2em;
+      color: #2168ae;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+
+    .event-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 30px;
+      gap: 18px;
+      align-items: center;
+      padding: 19px 0;
+      border-bottom: 1px solid rgba(0,0,0,.1);
+    }
+
+
+    .event-row:last-child {
+      border-bottom: none;
+    }
+
+
+    .date-badge {
+      border-radius: 13px;
+      background: var(--yellow);
+      min-height: 72px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+
+    .date-badge.blue {
+      background: var(--blue);
+    }
+
+
+    .date-badge span {
+      display: block;
+      font-size: 12px;
+      letter-spacing: .1em;
+    }
+
+
+    .date-badge strong {
+      display: block;
+      font-size: 30px;
+    }
+
+
+    .event-row h4 {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+
+    .event-row p {
+      color: #555;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+
+    .sermon-thumb {
+      height: 210px;
+      border-radius: 18px;
+      background:
+        linear-gradient(rgba(0,0,0,.1), rgba(0,0,0,.2)),
+        url("https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=900&q=80") center/cover no-repeat;
+      display: grid;
+      place-items: center;
+      margin-bottom: 24px;
+    }
+
+
+    .play {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.95);
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.3);
+    }
+
+
+    .panel h3 {
+      font-family: Playfair Display, serif;
+      font-size: 36px;
+      line-height: 1.05;
+      margin-bottom: 18px;
+    }
+
+
+    .panel p {
+      line-height: 1.7;
+    }
+
+
+    .contact-bar {
+      margin: 0 62px 0;
+      transform: translateY(36px);
+      border-radius: 18px;
+      background: linear-gradient(90deg, #d9efff, #bfe3ff);
+      min-height: 94px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+      z-index: 3;
+    }
+
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 24px 30px;
+      border-right: 1px solid rgba(0,0,0,.14);
+    }
+
+
+    .contact-item:last-child {
+      border-right: none;
+    }
+
+
+    .contact-icon {
+      font-size: 30px;
+    }
+
+
+    .contact-item small {
+      display: block;
+      font-size: 11px;
+      letter-spacing: .15em;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+
+    .contact-item strong {
+      font-size: 15px;
+    }
+
+
+    footer {
+      padding: 82px 62px 36px;
+      background: #080808;
+      color: white;
+    }
+
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(4, 1fr);
+      gap: 38px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      padding-bottom: 42px;
+    }
+
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+
+    .footer-brand img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fff;
+    }
+
+
+    .footer-brand strong {
+      display: block;
+      font-size: 21px;
+      letter-spacing: .04em;
+    }
+
+
+    footer h4 {
+      color: var(--yellow);
+      margin-bottom: 18px;
+      font-size: 13px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+
+    footer p, footer li {
+      color: rgba(255,255,255,.72);
+      line-height: 1.8;
+      list-style: none;
+      font-size: 14px;
+    }
+
+
+    .copyright {
+      padding-top: 28px;
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      text-align: center;
+    }
+
+
+    @media (max-width: 1100px) {
+      .nav-links {
+        display: none;
+      }
+
+
+      .hero-grid,
+      .welcome-grid,
+      .info-grid,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+
+      .blob-card {
+        min-height: 340px;
+      }
+
+
+      .service-strip,
+      .cards,
+      .contact-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+
+      .service-item:nth-child(2) {
+        border-right: 0;
+      }
+    }
+
+
+    @media (max-width: 720px) {
+      .nav {
+        padding: 0 18px;
+        height: 82px;
+      }
+
+
+      .brand {
+        min-width: 0;
+      }
+
+
+      .brand-logo {
+        width: 56px;
+        height: 56px;
+      }
+
+
+      .brand-text strong {
+        font-size: 17px;
+      }
+
+
+      .brand-text span {
+        font-size: 8px;
+      }
+
+
+      .nav-actions .btn {
+        display: none;
+      }
+
+
+      .hero,
+      section,
+      .mission-banner,
+      .info-section,
+      footer {
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+
+      .hero {
+        padding-top: 56px;
+        min-height: auto;
+      }
+
+
+      .hero-copy {
+        font-size: 16px;
+      }
+
+
+      .blob-card {
+        display: none;
+      }
+
+
+      .service-strip,
+      .cards,
+      .contact-bar {
+        grid-template-columns: 1fr;
+        width: calc(100% - 22px);
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+
+      .service-item {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.12);
+      }
+
+
+      .welcome {
+        padding-top: 110px;
+      }
+
+
+      .contact-bar {
+        margin: 0 22px;
+        width: auto;
+      }
+
+
+      .contact-item {
+        border-right: 0;
+        border-bottom: 1px solid rgba(0,0,0,.12);
+      }
+
+
+      .footer-grid {
+        gap: 26px;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+  <div class="page">
+    <header class="nav">
+      <a href="#" class="brand">
+        <img class="brand-logo" src="/assets/logo.jpg" alt="New Beginning Missionary Baptist Church Logo">
+        <div class="brand-text">
+          <strong>NEW BEGINNING</strong>
+          <span>MISSIONARY BAPTIST CHURCH</span>
+        </div>
+      </a>
+
+
+      <nav class="nav-links">
+        <a class="active" href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Ministries</a>
+        <a href="#">Events</a>
+        <a href="#">Sermons</a>
+        <a href="#">Give</a>
+        <a href="#">Contact</a>
+      </nav>
+
+
+      <div class="nav-actions">
+        <a class="btn btn-black" href="#">Plan Your Visit <span>→</span></a>
+        <button class="hamburger" aria-label="Open menu"><span></span></button>
+      </div>
+    </header>
+
+
+    <main>
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow">Faith. Family. Purpose.</div>
+            <h1 class="hero-title">
+              A New<br>Beginning
+              <span class="hero-script">Starts Here</span>
+            </h1>
+            <p class="hero-copy">
+              A church for real people, real faith, and real change.
+              Wherever you are in life, there is a place for you here.
+            </p>
+            <div class="hero-buttons">
+              <a class="btn btn-black" href="#">I'm New Here <span>→</span></a>
+              <a class="btn btn-outline" href="#">▶ Watch Sermons</a>
+            </div>
+          </div>
+
+
+          <div class="blob-card" aria-label="Church worship photo"></div>
+        </div>
+
+
+        <div class="service-strip">
+          <div class="service-item">
+            <div class="icon">📅</div>
+            <div><small>Sunday Worship</small><strong>10:00 AM</strong></div>
+          </div>
+          <div class="service-item">
+            <div class="icon blue">📖</div>
+            <div><small>Bible Study</small><strong>Wed 7:00 PM</strong></div>
+          </div>
+          <div class="service-item">
+            <div class="icon">👥</div>
+            <div><small>Youth Service</small><strong>Fri 7:00 PM</strong></div>
+          </div>
+          <div class="service-item">
+            <div class="icon blue">🙏</div>
+            <div><small>Prayer Night</small><strong>Thurs 7:00 PM</strong></div>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="welcome">
+        <div class="welcome-grid">
+          <h2 class="script-title">You’re Not Just a Visitor. <span>You’re Family.</span></h2>
+          <div class="pastor-card"></div>
+          <div>
+            <p class="welcome-copy">
+              At New Beginning, we are more than a church — we are a family on mission
+              to love God, love people, and change our world.
+            </p>
+            <div class="signature">Pastor Daniel Moore</div>
+            <div class="pastor-role">SENIOR PASTOR</div>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="ministries">
+        <div class="cards">
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon">👥</div>
+              <h3>Youth</h3>
+              <p>Empowering the next generation to walk in purpose and destiny.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+
+
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon blue">✦</div>
+              <h3>Women</h3>
+              <p>Building strong women who inspire, lead, and impact their world.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+
+
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon">🛡</div>
+              <h3>Men</h3>
+              <p>Strengthening men to lead with faith, integrity, and vision.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+
+
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon">♫</div>
+              <h3>Worship</h3>
+              <p>Creating an atmosphere where heaven meets earth in worship.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+
+
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon blue">♡</div>
+              <h3>Outreach</h3>
+              <p>Serving our community and making a difference where it matters most.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+
+
+          <article class="ministry-card">
+            <div>
+              <div class="pill-icon">☺</div>
+              <h3>Kids</h3>
+              <p>A fun and safe place where kids learn, grow, and encounter God.</p>
+              <a href="#">Explore →</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+
+      <div class="mission-banner">
+        <div class="brush">
+          <h2>We Exist To <span>Love God,</span> Love People & <span>Change Lives.</span></h2>
+        </div>
+      </div>
+
+
+      <section class="info-section">
+        <div class="info-grid">
+          <article class="panel">
+            <div class="section-kicker">Upcoming Events</div>
+
+
+            <div class="event-row">
+              <div class="date-badge"><span>JUN</span><strong>08</strong></div>
+              <div>
+                <h4>Baptism Sunday</h4>
+                <p>Sunday • 10:00 AM<br>Main Sanctuary</p>
+              </div>
+              <strong>→</strong>
+            </div>
+
+
+            <div class="event-row">
+              <div class="date-badge blue"><span>JUN</span><strong>15</strong></div>
+              <div>
+                <h4>Family Fun Day</h4>
+                <p>Saturday • 12:00 PM<br>Church Lawn</p>
+              </div>
+              <strong>→</strong>
+            </div>
+
+
+            <div class="event-row">
+              <div class="date-badge"><span>JUN</span><strong>22</strong></div>
+              <div>
+                <h4>Youth Conference</h4>
+                <p>Saturday • 9:00 AM<br>The Event Center</p>
+              </div>
+              <strong>→</strong>
+            </div>
+          </article>
+
+
+          <article class="panel black">
+            <div class="section-kicker">Latest Sermon</div>
+            <div class="sermon-thumb">
+              <div class="play">▶</div>
+            </div>
+            <h3>Faith That Moves Mountains</h3>
+            <p>Pastor Daniel Moore • May 5, 2024</p>
+            <br>
+            <a class="btn btn-yellow" href="#">Watch Now →</a>
+          </article>
+
+
+          <article class="panel yellow">
+            <div class="section-kicker" style="color:#111;">Make An Impact</div>
+            <h3>Your Giving Changes Lives</h3>
+            <p>
+              Your generosity fuels everything we do — from worship and discipleship
+              to outreach and missions.
+            </p>
+            <br>
+            <a class="btn btn-black" href="#">Give Online →</a>
+          </article>
+        </div>
+      </section>
+
+
+      <div class="contact-bar">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div><small>Visit Us</small><strong>123 Grace Way<br>Atlanta, GA</strong></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">☎</div>
+          <div><small>Call Us</small><strong>(555) 123-4567</strong></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉</div>
+          <div><small>Email Us</small><strong>hello@newbeginningmbc.org</strong></div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">◎</div>
+          <div><small>Follow Us</small><strong>Instagram • Facebook • YouTube</strong></div>
+        </div>
+      </div>
+    </main>
+
+
+    <footer>
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="/assets/logo.jpg" alt="New Beginning Missionary Baptist Church Logo">
+            <div>
+              <strong>NEW BEGINNING</strong>
+              <p>Missionary Baptist Church</p>
+            </div>
+          </div>
+          <p>A church where you belong. Faith, family, purpose, and community.</p>
+        </div>
+
+
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li>About Us</li>
+            <li>Ministries</li>
+            <li>Events</li>
+            <li>Sermons</li>
+            <li>Plan Your Visit</li>
+          </ul>
+        </div>
+
+
+        <div>
+          <h4>Service Times</h4>
+          <ul>
+            <li>Sunday Worship — 10:00 AM</li>
+            <li>Bible Study — Wed 7:00 PM</li>
+            <li>Prayer Night — Thurs 7:00 PM</li>
+          </ul>
+        </div>
+
+
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li>123 Grace Way</li>
+            <li>Atlanta, GA 30303</li>
+            <li>(555) 123-4567</li>
+            <li>hello@newbeginningmbc.org</li>
+          </ul>
+        </div>
+
+
+        <div>
+          <h4>Stay Connected</h4>
+          <p>Subscribe for church updates, events, and inspiration.</p>
+          <br>
+          <a class="btn btn-yellow" href="#">Subscribe</a>
+        </div>
+      </div>
+
+
+      <div class="copyright">
+        © 2026 New Beginning Missionary Baptist Church. All Rights Reserved.
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
