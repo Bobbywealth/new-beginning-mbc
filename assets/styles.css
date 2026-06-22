@@ -436,27 +436,31 @@
     .welcome {
       padding-top: 110px;
       background: white;
+      text-align: center;
     }
 
 
     .welcome-grid {
       display: grid;
-      grid-template-columns: .9fr 1fr .9fr;
+      grid-template-columns: 1fr 1fr;
       align-items: center;
       gap: 55px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: left;
     }
 
 
     .script-title {
       font-family: "Shadows Into Light", cursive;
-      font-size: clamp(42px, 4vw, 56px);
+      font-size: clamp(44px, 5vw, 72px);
       line-height: 1.15;
       color: #111;
-      transform: rotate(-2deg);
-      max-width: 90%;
+      transform: rotate(-1.5deg);
+      max-width: 900px;
+      margin: 0 auto 50px;
+      padding: 0 20px;
       overflow: visible;
-      margin-left: 20px;
-      padding: 8px 0;
     }
 
 
@@ -465,8 +469,9 @@
       display: block;
       text-decoration: underline;
       text-decoration-color: var(--yellow);
-      text-decoration-thickness: 5px;
-      text-underline-offset: 7px;
+      text-decoration-thickness: 6px;
+      text-underline-offset: 8px;
+      margin-top: 4px;
     }
 
 
@@ -1090,10 +1095,11 @@
 
 
       .script-title {
-        font-size: 36px !important;
-        line-height: 1.1;
-        margin-left: 0;
+        font-size: 38px !important;
+        line-height: 1.15;
+        margin: 0 auto 32px !important;
         max-width: 100%;
+        padding: 0 8px;
       }
 
 
@@ -1104,13 +1110,31 @@
 
 
       .welcome {
-        padding-top: 70px;
+        padding-top: 56px;
         padding-bottom: 40px;
       }
 
 
       .welcome-grid {
+        grid-template-columns: 1fr;
         gap: 32px;
+        text-align: center;
+      }
+
+
+      .pastor-card {
+        margin: 0 auto;
+        max-width: 320px;
+      }
+
+
+      .signature {
+        text-align: center;
+      }
+
+
+      .pastor-role {
+        text-align: center;
       }
 
 
