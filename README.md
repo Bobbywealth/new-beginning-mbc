@@ -32,4 +32,4 @@ Pushing to `main` triggers Render auto-deploy.
 - Address: 2801 NW 170th Street, Miami Gardens, FL 33056
 - Phone: (555) 123-4567
 - Email: hello@newbeginningmbc.org
-- Pastor: Eric Readon
+- Pastor: Readon
