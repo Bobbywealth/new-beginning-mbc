@@ -29,7 +29,7 @@ Pushing to `main` triggers Render auto-deploy.
 ## Content
 
 - Service Times: Sun 10:00 AM, Wed Bible Study 7:00 PM, Thurs Prayer 7:00 PM, Fri Youth 7:00 PM
-- Address: 123 Grace Way, Atlanta, GA 30303
+- Address: 2801 NW 170th Street, Miami Gardens, FL 33056
 - Phone: (555) 123-4567
 - Email: hello@newbeginningmbc.org
-- Pastor: Eric Reid
+- Pastor: Eric Readon
