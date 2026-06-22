@@ -334,6 +334,15 @@
       width: 168px;
       height: 168px;
       border-radius: 50%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: .16em;
+      font-weight: 900;
+      padding: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.16);
+    }
 
 
     .blob-card::after {
