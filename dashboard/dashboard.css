@@ -900,27 +900,121 @@ button { font-family: inherit; cursor: pointer; }
   .dash {
     grid-template-columns: 1fr;
   }
+
+  /* When sidebar is hidden, it should not take horizontal space at all */
   .sidebar {
     position: fixed;
     left: -100%;
     width: var(--sidebar-w);
-    z-index: 50;
+    max-width: 80vw;
+    height: 100vh;
+    z-index: 200;
     transition: left .25s;
+    box-shadow: none;
   }
-  .sidebar.open { left: 0; }
+  .sidebar.open {
+    left: 0;
+    box-shadow: 0 0 0 100vw rgba(0, 0, 0, .4);
+  }
+
   .mobile-bar { display: flex; }
-  .topbar { padding: 14px 18px; }
+
+  /* Topbar: hide search, simplify user info */
+  .topbar { padding: 12px 16px; gap: 12px; }
+  .topbar .breadcrumb { font-size: 10px; }
+  .topbar h1 { font-size: 18px; }
   .topbar .search { display: none; }
-  .content { padding: 18px; }
-  .grid-2 { grid-template-columns: 1fr; }
+  .topbar-actions { gap: 8px; }
+  #topbar-user .user-avatar { width: 32px; height: 32px; font-size: 12px; }
+
+  .content { padding: 16px; }
+
+  .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+  .grid-3 { grid-template-columns: 1fr; gap: 16px; }
   .form-grid { grid-template-columns: 1fr; }
+
+  /* Stat cards: 2 columns even on small phones */
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { padding: 16px; }
+  .stat-value { font-size: 30px; }
+
+  /* Tables: horizontal scroll inside container, not page */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table { min-width: 580px; }
+  .table th,
+  .table td { padding: 10px 12px; font-size: 13px; }
+
+  /* Filter rows stack */
+  .filters { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+  .filter-input,
+  .filter-select { width: 100%; min-width: 0; }
+  .filter-input { min-width: 0; }
+
+  /* Quick action row wraps */
+  .quick-actions { gap: 8px; }
+  .quick-actions .btn { width: 100%; justify-content: center; }
+
+  /* Topbar page header */
+  .sec-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .sec-head h2 { font-size: 24px; }
+  .sec-head-actions { width: 100%; flex-wrap: wrap; }
+  .sec-head-actions .btn { flex: 1; min-width: 0; justify-content: center; }
+
+  /* Tabs scroll */
+  .tabs { margin-bottom: 18px; }
+
+  /* Cards padding */
+  .card { padding: 18px; }
+  .card-lg { padding: 22px; }
+
+  /* Modal full-screen on phone */
+  .modal { max-width: 100%; max-height: 95vh; border-radius: 16px 16px 0 0; align-self: end; }
+  .modal-backdrop { padding: 0; align-items: end; }
+  .modal-header, .modal-body, .modal-footer { padding-left: 20px; padding-right: 20px; }
+
+  /* Toast mobile-friendly */
+  .toast-wrap { bottom: 16px; right: 16px; left: 16px; }
+  .toast { max-width: 100%; }
+
+  /* Form fields */
+  .field input,
+  .field select,
+  .field textarea { font-size: 16px; } /* prevent iOS zoom */
+  .field textarea { min-height: 90px; }
+
+  /* Modal footer stack */
+  .modal-footer { flex-wrap: wrap; }
+  .modal-footer .btn { flex: 1; min-width: 0; }
+
+  /* Hide non-essential chips on tiny screens */
+  .tag-pills { font-size: 10px; }
 }
 
 @media (max-width: 520px) {
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat { padding: 16px; }
+  .stat { padding: 14px; }
+  .stat-value { font-size: 26px; }
+  .stat-label { font-size: 10px; }
+  .login-card { padding: 28px 20px; }
+  .topbar h1 { font-size: 17px; }
+  .topbar { padding: 10px 14px; }
+  .sec-head h2 { font-size: 22px; }
+  .table { min-width: 520px; }
+}
+
+@media (max-width: 380px) {
+  .topbar { padding: 8px 12px; }
+  .content { padding: 12px; }
+  .stats-grid { grid-template-columns: 1fr; }
   .stat-value { font-size: 32px; }
-  .login-card { padding: 30px 24px; }
 }
 
 /* Toast container */

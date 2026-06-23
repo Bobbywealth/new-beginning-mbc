@@ -448,11 +448,34 @@ function formatPhone(raw) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.remove('open');
   }
 });
 
+// Close sidebar when clicking the dim overlay (the box-shadow on .sidebar.open)
+// Click anywhere outside the sidebar while it's open on mobile
 document.addEventListener('click', (e) => {
   if (e.target.classList && e.target.classList.contains('modal-backdrop')) {
     e.target.classList.remove('open');
+  }
+  const sb = document.getElementById('sidebar');
+  if (sb && sb.classList.contains('open') && window.innerWidth <= 860) {
+    // If click is outside the sidebar element, close it
+    if (!sb.contains(e.target)) {
+      const isMenuBtn = e.target.classList && (e.target.classList.contains('menu-btn') || e.target.closest('.menu-btn'));
+      if (!isMenuBtn) sb.classList.remove('open');
+    }
+  }
+});
+
+// Auto-close sidebar when a nav link is tapped (mobile)
+document.addEventListener('click', (e) => {
+  const link = e.target.closest && e.target.closest('.sidebar .nav-item');
+  if (link) {
+    setTimeout(() => {
+      const sb = document.getElementById('sidebar');
+      if (sb) sb.classList.remove('open');
+    }, 50);
   }
 });
