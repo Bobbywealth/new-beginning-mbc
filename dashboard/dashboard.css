@@ -596,6 +596,8 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 24px;
   overflow-x: auto;
   scrollbar-width: none;
+  max-width: 100%;
+  flex-wrap: nowrap;
 }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {

@@ -1280,6 +1280,20 @@
         min-height: 100px;
       }
 
+      /* Override inline-style grids on contact page (need !important to beat inline) */
+      .contact-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .form-name-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .panel[style*="padding: 50px"] {
+        padding: 24px 20px !important;
+      }
+      .contact-page .welcome .info-grid {
+        gap: 20px !important;
+      }
+
 
       /* Section headers tighter */
       h2.script-title { letter-spacing: -.005em; }
