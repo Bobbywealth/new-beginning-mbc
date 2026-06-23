@@ -156,6 +156,39 @@ button { font-family: inherit; cursor: pointer; }
   cursor: pointer;
   transition: .18s;
 }
+.mobile-bar .menu-btn:hover { background: rgba(255, 255, 255, .12); }
+.mobile-bar .mobile-bar-logout { margin-left: auto; }
+.mobile-bar .mobile-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.mobile-bar .mobile-bar-brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .7);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.mobile-bar .mobile-bar-brand span {
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile-bar .mobile-bar-brand em {
+  font-style: normal;
+  color: var(--yellow);
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
 .user-card:hover { background: rgba(255, 255, 255, .06); }
 .user-avatar {
   width: 36px;
@@ -251,6 +284,8 @@ button { font-family: inherit; cursor: pointer; }
 .content {
   padding: 32px;
   max-width: 1500px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -307,6 +342,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--line);
   padding: 24px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
 }
 .card-title {
   font-size: 13px;
@@ -596,18 +632,21 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 24px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   max-width: 100%;
   flex-wrap: nowrap;
+  position: relative;
 }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
-  padding: 12px 18px;
+  padding: 12px 14px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gray);
   border-bottom: 3px solid transparent;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   background: transparent;
   border-left: 0;
   border-right: 0;
@@ -622,6 +661,16 @@ button { font-family: inherit; cursor: pointer; }
 }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
+
+/* Save button row inside cards */
+.save-row {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.save-row .btn { flex: 0 0 auto; }
 
 /* Empty state */
 .empty {
@@ -878,10 +927,10 @@ button { font-family: inherit; cursor: pointer; }
   top: 0;
   background: var(--black);
   color: white;
-  padding: 14px 18px;
+  padding: 12px 16px;
   align-items: center;
-  gap: 14px;
-  z-index: 20;
+  gap: 12px;
+  z-index: 30;
 }
 .mobile-bar .menu-btn {
   background: transparent;
@@ -995,6 +1044,24 @@ button { font-family: inherit; cursor: pointer; }
   /* Modal footer stack */
   .modal-footer { flex-wrap: wrap; }
   .modal-footer .btn { flex: 1; min-width: 0; }
+
+  /* Save button rows: stack on mobile */
+  .save-row {
+    flex-direction: column-reverse; /* primary save button on top */
+  }
+  .save-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tabs container scroll indicator */
+  .tabs {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    scroll-padding-left: 16px;
+  }
 
   /* Hide non-essential chips on tiny screens */
   .tag-pills { font-size: 10px; }

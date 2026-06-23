@@ -353,9 +353,12 @@ function mountShell(activeKey, breadcrumb) {
   if (mobileHost) {
     mobileHost.outerHTML = `
       <div class="mobile-bar">
-        <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-        <strong>${escapeHtml(breadcrumb || '')}</strong>
-        <button class="menu-btn" style="margin-left:auto" onclick="logout()" aria-label="Logout">⎋</button>
+        <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Open menu">☰</button>
+        <div class="mobile-bar-brand">
+          <img src="/assets/logo.jpg" alt="Logo" />
+          <span><strong>NEW BEGINNING</strong> · <em>${escapeHtml(breadcrumb || '')}</em></span>
+        </div>
+        <button class="menu-btn mobile-bar-logout" onclick="logout()" aria-label="Logout">⎋</button>
       </div>
     `;
   }
