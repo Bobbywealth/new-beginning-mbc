@@ -518,7 +518,7 @@ button { font-family: inherit; cursor: pointer; }
   gap: 18px;
 }
 .form-grid.full { grid-template-columns: 1fr; }
-.field { display: flex; flex-direction: column; gap: 6px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .field.full { grid-column: 1 / -1; }
 .field label {
   font-size: 11px;
