@@ -121,7 +121,7 @@
   <script src="/dashboard/dashboard.js"></script>
   <script>
 
-if (!isRole('admin')) { window.location.href = '/login.html'; throw new Error('admin only'); }
+if (!isRole('admin')) { window.location.href = '/dashboard/index.html'; throw new Error('admin only'); }
 mountShell('settings', 'Settings');
 
 document.querySelectorAll('#settings-tabs .tab').forEach(t => {
