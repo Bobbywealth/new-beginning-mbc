@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">SETTINGS</div>
+          <h1>Settings</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Settings</h2>
+    <p style="color:var(--gray)">Admin only. Church info, website content, SMS, and roles.</p>
+  </div>
+</div>
+
+<div class="tabs" id="settings-tabs">
+  <button class="tab active" data-tab="church">Church Info</button>
+  <button class="tab" data-tab="website">Website</button>
+  <button class="tab" data-tab="sms">SMS</button>
+  <button class="tab" data-tab="roles">Roles</button>
+  <button class="tab" data-tab="storage">Storage</button>
+</div>
+
+<div class="tab-panel active" id="tab-church">
+  <div class="card card-lg" style="max-width:760px">
+    <div class="field" style="margin-bottom:14px"><label>Church Name</label><input type="text" id="church-name" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Address</label><input type="text" id="church-address" /></div>
+    <div class="form-grid">
+      <div class="field" style="margin-bottom:14px"><label>Phone</label><input type="tel" id="church-phone" /></div>
+      <div class="field" style="margin-bottom:14px"><label>Email</label><input type="email" id="church-email" /></div>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Service Times</label><textarea id="church-services" rows="2"></textarea></div>
+    <div class="form-grid">
+      <div class="field" style="margin-bottom:14px"><label>Instagram URL</label><input type="url" id="church-instagram" placeholder="https://instagram.com/…" /></div>
+      <div class="field" style="margin-bottom:14px"><label>Facebook URL</label><input type="url" id="church-facebook" /></div>
+      <div class="field" style="margin-bottom:14px"><label>YouTube URL</label><input type="url" id="church-youtube" /></div>
+      <div class="field" style="margin-bottom:14px"><label>Logo</label><input type="file" id="church-logo" accept="image/*" disabled /></div>
+    </div>
+    <div style="margin-top:18px;text-align:right"><button class="btn btn-black" id="save-church-btn">Save Church Info</button></div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-website">
+  <div class="card card-lg" style="max-width:760px">
+    <div class="field" style="margin-bottom:14px"><label>Homepage Hero Eyebrow</label><input type="text" id="web-eyebrow" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Homepage Hero Headline</label><input type="text" id="web-headline" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Mission Statement</label><textarea id="web-mission" rows="3"></textarea></div>
+    <div class="field" style="margin-bottom:14px"><label>Footer Tagline</label><input type="text" id="web-footer" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Giving Link</label><input type="url" id="web-giving" /></div>
+    <div class="field" style="margin-bottom:14px"><label>SEO Title</label><input type="text" id="web-seo-title" /></div>
+    <div class="field" style="margin-bottom:14px"><label>SEO Description</label><textarea id="web-seo-desc" rows="2"></textarea></div>
+    <div style="margin-top:18px;text-align:right"><button class="btn btn-black" id="save-website-btn">Save Website Settings</button></div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-sms">
+  <div class="card card-lg" style="max-width:760px">
+    <div class="field" style="margin-bottom:14px"><label>Twilio Account SID</label><input type="text" id="tw-sid" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Twilio Auth Token</label><input type="password" id="tw-token" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Twilio Phone Number</label><input type="tel" id="tw-phone" placeholder="+15551234567" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Default Opt-In Language</label><textarea id="tw-optin" rows="3"></textarea></div>
+    <div class="field" style="margin-bottom:14px"><label>Default Unsubscribe Language</label><textarea id="tw-unsub" rows="2"></textarea></div>
+    <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px"><button class="btn btn-outline" onclick="toast('Connection test will run once backend is wired (v2).', 'warning')">Test Connection</button><button class="btn btn-black" id="save-sms-btn">Save SMS Settings</button></div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-roles">
+  <div class="card" style="max-width:920px">
+    <h3 style="margin-bottom:14px">Role Definitions</h3>
+    <p style="color:var(--gray);font-size:14px;margin-bottom:24px">Define what each role can access. Changes apply to new sessions immediately.</p>
+    <table class="table">
+      <thead><tr><th>Role</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge black">ADMIN</span></td><td>Full access to all dashboard pages including Staff and Settings.</td></tr>
+        <tr><td><span class="badge blue">PASTOR</span></td><td>Dashboard, Members, SMS, Communications, Events, Sermons, Prayer, Reports. NO Staff or Settings.</td></tr>
+        <tr><td><span class="badge">STAFF</span></td><td>Dashboard, Members, SMS, Communications, Events, Sermons, Prayer. Per-permission configurable.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:18px;font-size:13px;color:var(--gray)">Edit individual user permissions on the <a href="/dashboard/staff.html" style="color:var(--blue-deep);font-weight:700">Staff Users</a> page.</p>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-storage">
+  <div class="card" style="max-width:760px">
+    <h3 style="margin-bottom:14px">Image Storage</h3>
+    <p style="color:var(--gray);font-size:14px;margin-bottom:24px">Where uploaded images (logos, event images, sermon thumbnails) are stored.</p>
+    <div class="field" style="margin-bottom:14px"><label>Storage Provider</label>
+      <select disabled><option>Netlify (current)</option><option>Cloudinary (v2)</option><option>Supabase Storage (v2)</option></select>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Max Upload Size</label><input type="text" value="10 MB" disabled /></div>
+    <p style="margin-top:14px;font-size:13px;color:var(--gray)">Storage migration to Cloudinary/Supabase is part of v2 backend work.</p>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+if (!isRole('admin')) { window.location.href = '/login.html'; throw new Error('admin only'); }
+mountShell('settings', 'Settings');
+
+document.querySelectorAll('#settings-tabs .tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#settings-tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+  });
+});
+
+// Load church info
+document.getElementById('church-name').value = setting_get('church_name') || '';
+document.getElementById('church-address').value = setting_get('address') || '';
+document.getElementById('church-phone').value = setting_get('phone') || '';
+document.getElementById('church-email').value = setting_get('email') || '';
+document.getElementById('church-services').value = setting_get('service_times') || '';
+document.getElementById('church-instagram').value = setting_get('instagram') || '';
+document.getElementById('church-facebook').value = setting_get('facebook') || '';
+document.getElementById('church-youtube').value = setting_get('youtube') || '';
+
+document.getElementById('web-eyebrow').value = setting_get('web_eyebrow') || 'Faith. Fellowship. Purpose.';
+document.getElementById('web-headline').value = setting_get('web_headline') || "A New Beginning\nStarts Here";
+document.getElementById('web-mission').value = setting_get('web_mission') || '';
+document.getElementById('web-footer').value = setting_get('web_footer') || 'A church where you belong. Faith, fellowship, and purpose.';
+document.getElementById('web-giving').value = setting_get('web_giving') || '/give.html';
+document.getElementById('web-seo-title').value = setting_get('seo_title') || 'New Beginning Missionary Baptist Church';
+document.getElementById('web-seo-desc').value = setting_get('seo_desc') || 'A church where you belong. Faith, fellowship, and purpose.';
+
+document.getElementById('tw-sid').value = setting_get('twilio_sid') || '';
+document.getElementById('tw-token').value = setting_get('twilio_token') || '';
+document.getElementById('tw-phone').value = setting_get('twilio_phone') || '';
+document.getElementById('tw-optin').value = setting_get('optin_language') || 'I agree to receive text messages from New Beginning Missionary Baptist Church. Message & data rates may apply. Reply STOP to unsubscribe.';
+document.getElementById('tw-unsub').value = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe. For help, reply HELP.';
+
+function saveGroup(fieldIds, keys) {
+  const session = getSession();
+  fieldIds.forEach((id, i) => {
+    const v = document.getElementById(id).value;
+    setting_set(keys[i], v, session.email);
+  });
+  toast('Saved.', 'success');
+}
+
+document.getElementById('save-church-btn').addEventListener('click', () => saveGroup(
+  ['church-name', 'church-address', 'church-phone', 'church-email', 'church-services', 'church-instagram', 'church-facebook', 'church-youtube'],
+  ['church_name', 'address', 'phone', 'email', 'service_times', 'instagram', 'facebook', 'youtube']
+));
+
+document.getElementById('save-website-btn').addEventListener('click', () => saveGroup(
+  ['web-eyebrow', 'web-headline', 'web-mission', 'web-footer', 'web-giving', 'web-seo-title', 'web-seo-desc'],
+  ['web_eyebrow', 'web_headline', 'web_mission', 'web_footer', 'web_giving', 'seo_title', 'seo_desc']
+));
+
+document.getElementById('save-sms-btn').addEventListener('click', () => saveGroup(
+  ['tw-sid', 'tw-token', 'tw-phone', 'tw-optin', 'tw-unsub'],
+  ['twilio_sid', 'twilio_token', 'twilio_phone', 'optin_language', 'unsubscribe_language']
+));
+
+  </script>
+</body>
+</html>

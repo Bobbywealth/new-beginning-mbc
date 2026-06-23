@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Members — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">MEMBERS</div>
+          <h1>Members</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Members</h2>
+    <p>People database. Click a row to view / edit.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-outline" onclick="exportCSV('members')">⬇ Export CSV</button>
+    <button class="btn btn-yellow" onclick="openMemberModal()">+ Add Member</button>
+  </div>
+</div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="member-search" placeholder="🔍 Search name, phone, email…" />
+  <select class="filter-select" id="filter-status">
+    <option value="">All Statuses</option>
+    <option>Active Member</option>
+    <option>New Member</option>
+    <option>Inactive</option>
+    <option>Needs Follow-Up</option>
+  </select>
+  <select class="filter-select" id="filter-ministry">
+    <option value="">All Ministries</option>
+    <option>Youth</option>
+    <option>Women's Ministry</option>
+    <option>Men's Ministry</option>
+    <option>Worship Team</option>
+    <option>Outreach Team</option>
+    <option>Volunteer</option>
+    <option>Prayer Team</option>
+    <option>Leadership</option>
+  </select>
+  <select class="filter-select" id="filter-sms">
+    <option value="">SMS Opt-In: Any</option>
+    <option value="yes">Opted In</option>
+    <option value="no">Not Opted In</option>
+  </select>
+  <button class="btn btn-outline btn-sm" onclick="resetMemberFilters()">Reset</button>
+</div>
+
+<div class="table-wrap">
+  <table class="table" id="members-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Ministry</th>
+        <th>SMS</th>
+        <th>Tags</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="members-tbody"></tbody>
+  </table>
+</div>
+
+<div class="sec-head">
+</div>
+
+
+<!-- Add/Edit member modal -->
+<div class="modal-backdrop" id="member-modal">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <h2 id="member-modal-title">Add Member</h2>
+      <button class="modal-close" onclick="closeModal('member-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="member-form" class="form-grid">
+        <div class="field"><label>First Name *</label><input type="text" name="first_name" required /></div>
+        <div class="field"><label>Last Name *</label><input type="text" name="last_name" required /></div>
+        <div class="field"><label>Phone</label><input type="tel" name="phone" /></div>
+        <div class="field"><label>Email</label><input type="email" name="email" /></div>
+        <div class="field full"><label>Address</label><input type="text" name="address" /></div>
+        <div class="field"><label>Birthday</label><input type="date" name="birthday" /></div>
+        <div class="field"><label>Membership Status</label>
+          <select name="membership_status">
+            <option>Active Member</option><option>New Member</option><option>Inactive</option><option>Needs Follow-Up</option>
+          </select>
+        </div>
+        <div class="field"><label>Ministry Group</label>
+          <select name="ministry_group">
+            <option value=""></option><option>Youth</option><option>Women's Ministry</option><option>Men's Ministry</option><option>Worship Team</option><option>Outreach Team</option><option>Volunteer</option><option>Prayer Team</option><option>Leadership</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="checkbox-row"><input type="checkbox" name="sms_opt_in" /><span>SMS Opt-In</span></label>
+        </div>
+        <div class="field full"><label>Tags (comma separated)</label><input type="text" name="tags" placeholder="Youth, Volunteer, Prayer Team" /></div>
+        <div class="field full"><label>Notes</label><textarea name="notes" rows="3"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('member-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="member-save-btn">Save Member</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member detail modal -->
+<div class="modal-backdrop" id="member-detail">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h2 id="member-detail-name">Member</h2>
+      <button class="modal-close" onclick="closeModal('member-detail')">×</button>
+    </div>
+    <div class="modal-body" id="member-detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="archiveCurrentMember()">Archive</button>
+      <button class="btn btn-black" id="member-edit-btn">Edit</button>
+      <button class="btn btn-yellow" id="member-message-btn">📨 Send Message</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+mountShell('members', 'Members');
+
+// State
+let currentMemberId = null;
+
+function renderMembers() {
+  const q = document.getElementById('member-search').value.toLowerCase();
+  const status = document.getElementById('filter-status').value;
+  const ministry = document.getElementById('filter-ministry').value;
+  const sms = document.getElementById('filter-sms').value;
+  const members = store_list('members').filter(m => {
+    if (q) {
+      const hay = [m.first_name, m.last_name, m.phone, m.email, m.address].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (status && m.membership_status !== status) return false;
+    if (ministry && m.ministry_group !== ministry) return false;
+    if (sms === 'yes' && !m.sms_opt_in) return false;
+    if (sms === 'no' && m.sms_opt_in) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('members-tbody');
+  if (members.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">☺</div><h3>No members yet</h3><p>Click <strong>+ Add Member</strong> to get started.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = members.map(m => `
+    <tr onclick="openMemberDetail('${m.id}')" style="cursor:pointer">
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${initials(m.first_name + ' ' + m.last_name)}</div><div><strong>${escapeHtml(m.first_name)} ${escapeHtml(m.last_name)}</strong></div></div></td>
+      <td>${escapeHtml(formatPhone(m.phone)) || '—'}</td>
+      <td>${escapeHtml(m.email) || '—'}</td>
+      <td><span class="badge ${m.membership_status === 'Active Member' ? 'green' : m.membership_status === 'Needs Follow-Up' ? 'red' : m.membership_status === 'New Member' ? 'blue' : ''}">${escapeHtml(m.membership_status)}</span></td>
+      <td>${escapeHtml(m.ministry_group) || '—'}</td>
+      <td>${m.sms_opt_in ? '<span class="badge green">✓ Opted In</span>' : '<span class="badge gray">—</span>'}</td>
+      <td><div class="tag-pills">${(m.tags || []).slice(0,2).map(t => `<span class="tag-pill">${escapeHtml(t)}</span>`).join('')}${(m.tags || []).length > 2 ? `<span class="tag-pill">+${(m.tags || []).length - 2}</span>` : ''}</div></td>
+      <td><div class="actions"><button class="btn-icon" onclick="event.stopPropagation();openMemberModal('${m.id}')" title="Edit">✎</button></div></td>
+    </tr>
+  `).join('');
+}
+
+['member-search', 'filter-status', 'filter-ministry', 'filter-sms'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderMembers);
+  document.getElementById(id).addEventListener('change', renderMembers);
+});
+
+function resetMemberFilters() {
+  document.getElementById('member-search').value = '';
+  document.getElementById('filter-status').value = '';
+  document.getElementById('filter-ministry').value = '';
+  document.getElementById('filter-sms').value = '';
+  renderMembers();
+}
+
+function openMemberModal(id) {
+  currentMemberId = id || null;
+  document.getElementById('member-modal-title').textContent = id ? 'Edit Member' : 'Add Member';
+  const form = document.getElementById('member-form');
+  form.reset();
+  if (id) {
+    const m = store_get('members', id);
+    if (!m) return;
+    form.first_name.value = m.first_name || '';
+    form.last_name.value = m.last_name || '';
+    form.phone.value = m.phone || '';
+    form.email.value = m.email || '';
+    form.address.value = m.address || '';
+    form.birthday.value = m.birthday || '';
+    form.membership_status.value = m.membership_status || 'Active Member';
+    form.ministry_group.value = m.ministry_group || '';
+    form.sms_opt_in.checked = !!m.sms_opt_in;
+    form.tags.value = (m.tags || []).join(', ');
+    form.notes.value = m.notes || '';
+  }
+  openModal('member-modal');
+}
+
+document.getElementById('member-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('member-form');
+  const data = {
+    first_name: form.first_name.value.trim(),
+    last_name: form.last_name.value.trim(),
+    phone: form.phone.value.trim(),
+    email: form.email.value.trim(),
+    address: form.address.value.trim(),
+    birthday: form.birthday.value || '',
+    membership_status: form.membership_status.value,
+    ministry_group: form.ministry_group.value,
+    sms_opt_in: form.sms_opt_in.checked,
+    tags: form.tags.value.split(',').map(s => s.trim()).filter(Boolean),
+    notes: form.notes.value.trim(),
+  };
+  if (!data.first_name || !data.last_name) {
+    toast('First and last name are required.', 'warning');
+    return;
+  }
+  if (currentMemberId) {
+    store_update('members', currentMemberId, data);
+    toast('Member updated.', 'success');
+  } else {
+    store_add('members', data);
+    toast('Member added.', 'success');
+  }
+  closeModal('member-modal');
+  renderMembers();
+});
+
+function openMemberDetail(id) {
+  currentMemberId = id;
+  const m = store_get('members', id);
+  if (!m) return;
+  document.getElementById('member-detail-name').textContent = m.first_name + ' ' + m.last_name;
+  document.getElementById('member-detail-body').innerHTML = `
+    <dl class="kv">
+      <dt>Status</dt><dd><span class="badge ${m.membership_status === 'Active Member' ? 'green' : m.membership_status === 'Needs Follow-Up' ? 'red' : 'blue'}">${escapeHtml(m.membership_status)}</span></dd>
+      <dt>Phone</dt><dd>${escapeHtml(formatPhone(m.phone)) || '—'}</dd>
+      <dt>Email</dt><dd>${escapeHtml(m.email) || '—'}</dd>
+      <dt>Address</dt><dd>${escapeHtml(m.address) || '—'}</dd>
+      <dt>Birthday</dt><dd>${m.birthday ? fmtDate(m.birthday) : '—'}</dd>
+      <dt>Ministry</dt><dd>${escapeHtml(m.ministry_group) || '—'}</dd>
+      <dt>SMS Opt-In</dt><dd>${m.sms_opt_in ? '<span class="badge green">Yes</span>' : '<span class="badge gray">No</span>'}</dd>
+      <dt>Tags</dt><dd><div class="tag-pills">${(m.tags || []).map(t => `<span class="tag-pill">${escapeHtml(t)}</span>`).join('') || '—'}</div></dd>
+      <dt>Last Contacted</dt><dd>${m.last_contacted ? fmtDate(m.last_contacted) : 'Never'}</dd>
+      <dt>Added</dt><dd>${fmtDate(m.created_at)}</dd>
+      <dt>Notes</dt><dd>${escapeHtml(m.notes) || '—'}</dd>
+    </dl>
+  `;
+  openModal('member-detail');
+}
+
+document.getElementById('member-edit-btn').addEventListener('click', () => {
+  closeModal('member-detail');
+  openMemberModal(currentMemberId);
+});
+
+document.getElementById('member-message-btn').addEventListener('click', () => {
+  if (!currentMemberId) return;
+  window.location.href = '/dashboard/communications.html#send&member=' + currentMemberId;
+});
+
+function archiveCurrentMember() {
+  if (!currentMemberId) return;
+  if (!confirm('Archive this member? They will be removed from the active list.')) return;
+  const m = store_get('members', currentMemberId);
+  store_update('members', currentMemberId, { membership_status: 'Inactive', archived_at: new Date().toISOString() });
+  toast('Member archived.', 'success');
+  closeModal('member-detail');
+  renderMembers();
+}
+
+function exportCSV(key) {
+  const rows = store_list(key);
+  if (rows.length === 0) { toast('Nothing to export.', 'warning'); return; }
+  const cols = Object.keys(rows[0]).filter(c => c !== 'id');
+  const csv = [cols.join(',')].concat(rows.map(r => cols.map(c => '"' + String(r[c] || '').replace(/"/g, '""') + '"').join(','))).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = key + '-export.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Exported ' + rows.length + ' rows.', 'success');
+}
+
+// Auto-open add modal if URL has #add
+if (window.location.hash === '#add') {
+  setTimeout(() => openMemberModal(), 100);
+}
+
+renderMembers();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>overview — New Beginning MBC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">DASHBOARD</div>
+          <h1 id="page-title">Dashboard Overview</h1>
+        </div>
+        <div class="search">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+        
+<div class="sec-head">
+  <div>
+    <h2>Welcome back, <span style="color:var(--blue-deep)">Friend</span></h2>
+    <p>Here's a snapshot of activity across the church.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-outline" onclick="window.location.href='/dashboard/communications.html'">📨 Send Message</button>
+    <button class="btn btn-yellow" onclick="window.location.href='/dashboard/members.html#add'">+ Add Member</button>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat">
+    <div class="stat-label">Total Members</div>
+    <div class="stat-value" data-stat="members">—</div>
+    <div class="stat-delta up">↑ active in church</div>
+  </div>
+  <div class="stat blue">
+    <div class="stat-label">SMS Subscribers</div>
+    <div class="stat-value" data-stat="sms">—</div>
+    <div class="stat-delta up">↑ opted-in</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">New SMS This Week</div>
+    <div class="stat-value" data-stat="new_sms">—</div>
+    <div class="stat-delta up">↑ last 7 days</div>
+  </div>
+  <div class="stat black">
+    <div class="stat-label">Upcoming Events</div>
+    <div class="stat-value" data-stat="events">—</div>
+    <div class="stat-delta">this month</div>
+  </div>
+  <div class="stat blue">
+    <div class="stat-label">Open Prayer Requests</div>
+    <div class="stat-value" data-stat="prayer">—</div>
+    <div class="stat-delta">awaiting prayer</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Messages Sent (30d)</div>
+    <div class="stat-value" data-stat="messages">—</div>
+    <div class="stat-delta up">↑ engagement</div>
+  </div>
+  <div class="stat blue">
+    <div class="stat-label">Latest Sermon</div>
+    <div class="stat-value" data-stat="sermon" style="font-size:18px;line-height:1.2">—</div>
+    <div class="stat-delta" data-stat="sermon_date"></div>
+  </div>
+  <div class="stat black">
+    <div class="stat-label">Active Staff Users</div>
+    <div class="stat-value" data-stat="staff">—</div>
+    <div class="stat-delta">internal team</div>
+  </div>
+</div>
+
+<div class="quick-actions">
+  <button class="btn btn-black" onclick="window.location.href='/dashboard/members.html#add'">+ Add Member</button>
+  <button class="btn btn-yellow" onclick="window.location.href='/dashboard/communications.html#send'">📨 Send Message</button>
+  <button class="btn btn-outline" onclick="window.location.href='/dashboard/events.html#add'">+ Add Event</button>
+  <button class="btn btn-outline" onclick="window.location.href='/dashboard/sermons.html#add'">+ Add Sermon</button>
+  <button class="btn btn-outline" onclick="window.location.href='/dashboard/prayer-requests.html#add'">+ Add Prayer Request</button>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Recent SMS Sign-Ups</div>
+      <a class="badge" href="/dashboard/sms-signups.html">View all →</a>
+    </div>
+    <div class="feed" id="recent-sms"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Recent Prayer Requests</div>
+      <a class="badge" href="/dashboard/prayer-requests.html">View all →</a>
+    </div>
+    <div class="feed" id="recent-prayer"></div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:22px">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Upcoming Events</div>
+      <a class="badge" href="/dashboard/events.html">Manage →</a>
+    </div>
+    <div id="upcoming-events"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="card-title" style="margin:0">Latest Sermon</div>
+      <a class="badge" href="/dashboard/sermons.html">Manage →</a>
+    </div>
+    <div id="latest-sermon"></div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+    mountShell('overview', 'Overview');
+    
+    const session = mountShell('overview', 'Overview');
+    document.getElementById('breadcrumb').textContent = 'Dashboard';
+    document.title = 'Dashboard — New Beginning MBC';
+
+    // Stats
+    const members    = store_list('members');
+    const smsSignups = store_list('sms_signups');
+    const events     = store_list('events').filter(e => e.is_public && new Date(e.date) >= new Date(new Date().toDateString()));
+    const prayerNew  = store_list('prayer_requests').filter(p => p.status !== 'Resolved' && p.status !== 'Archived');
+    const history    = store_list('message_history');
+    const sermons    = store_list('sermons');
+    const staff      = store_list('staff').filter(s => s.status === 'Active');
+
+    document.querySelector('[data-stat="members"]').textContent = members.length;
+    document.querySelector('[data-stat="sms"]').textContent = smsSignups.filter(s => s.opt_in_status === 'Opted In').length;
+    document.querySelector('[data-stat="new_sms"]').textContent = smsSignups.filter(s => {
+      const d = new Date(s.opt_in_date || s.created_at);
+      const diff = Date.now() - d.getTime();
+      return diff < 7 * 24 * 60 * 60 * 1000;
+    }).length;
+    document.querySelector('[data-stat="events"]').textContent = events.length;
+    document.querySelector('[data-stat="prayer"]').textContent = prayerNew.length;
+    document.querySelector('[data-stat="messages"]').textContent = history.length;
+
+    const latestSermon = sermons[0];
+    if (latestSermon) {
+      document.querySelector('[data-stat="sermon"]').textContent = latestSermon.title.slice(0, 28);
+      document.querySelector('[data-stat="sermon_date"]').textContent = latestSermon.speaker + ' • ' + fmtDate(latestSermon.date);
+    } else {
+      document.querySelector('[data-stat="sermon"]').textContent = 'No sermons yet';
+    }
+    document.querySelector('[data-stat="staff"]').textContent = staff.length;
+
+    // Personalize welcome
+    document.querySelector('.sec-head h2').innerHTML = 'Welcome back, <span style="color:var(--blue-deep)">' + session.name.split(' ')[0] + '</span>';
+
+    // Recent SMS sign-ups
+    const smsFeed = document.getElementById('recent-sms');
+    const recentSms = smsSignups.slice(0, 5);
+    if (recentSms.length === 0) {
+      smsFeed.innerHTML = '<div class="empty"><div class="empty-icon">✉</div><p>No SMS sign-ups yet.</p></div>';
+    } else {
+      smsFeed.innerHTML = recentSms.map(s => `
+        <div class="feed-item">
+          <div class="feed-icon blue">${initials(s.first_name + ' ' + s.last_name)}</div>
+          <div class="feed-content">
+            <strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong>
+            <span>${escapeHtml(formatPhone(s.phone))} • ${s.opt_in_source} • ${relTime(s.opt_in_date || s.created_at)}</span>
+          </div>
+          <span class="badge ${s.opt_in_status === 'Opted In' ? 'green' : 'yellow'}">${s.opt_in_status}</span>
+        </div>
+      `).join('');
+    }
+
+    // Recent prayer
+    const prayerFeed = document.getElementById('recent-prayer');
+    const recentPrayer = store_list('prayer_requests').slice(0, 5);
+    if (recentPrayer.length === 0) {
+      prayerFeed.innerHTML = '<div class="empty"><div class="empty-icon">♡</div><p>No prayer requests yet.</p></div>';
+    } else {
+      prayerFeed.innerHTML = recentPrayer.map(p => `
+        <div class="feed-item">
+          <div class="feed-icon ${p.urgency_level === 'Urgent' ? 'red' : ''}">${p.urgency_level === 'Urgent' ? '!' : '♡'}</div>
+          <div class="feed-content">
+            <strong>${escapeHtml(p.name)}</strong>
+            <span>${escapeHtml(p.request_text.slice(0, 80))}${p.request_text.length > 80 ? '…' : ''}</span>
+          </div>
+          <span class="badge ${p.status === 'New' ? 'red' : p.status === 'Praying' ? 'blue' : 'green'}">${p.status}</span>
+        </div>
+      `).join('');
+    }
+
+    // Upcoming events
+    const eventsList = document.getElementById('upcoming-events');
+    const upcoming = store_list('events').filter(e => new Date(e.date) >= new Date(new Date().toDateString())).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+    if (upcoming.length === 0) {
+      eventsList.innerHTML = '<div class="empty"><div class="empty-icon">☷</div><p>No upcoming events.</p></div>';
+    } else {
+      eventsList.innerHTML = upcoming.map(e => `
+        <div class="feed-item">
+          <div class="feed-icon">☷</div>
+          <div class="feed-content">
+            <strong>${escapeHtml(e.title)}</strong>
+            <span>${fmtDate(e.date)} • ${fmtTime(e.start_time)} • ${escapeHtml(e.location)}</span>
+          </div>
+          ${e.featured_on_homepage ? '<span class="badge yellow">Featured</span>' : ''}
+        </div>
+      `).join('');
+    }
+
+    // Latest sermon
+    const sermonEl = document.getElementById('latest-sermon');
+    if (latestSermon) {
+      sermonEl.innerHTML = `
+        <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+          <strong style="display:block;font-size:16px">${escapeHtml(latestSermon.title)}</strong>
+          <span style="font-size:12px;color:var(--gray)">${escapeHtml(latestSermon.speaker)} • ${fmtDate(latestSermon.date)}</span>
+        </div>
+        <p style="color:var(--gray);font-size:13px;margin-top:12px;line-height:1.6">${escapeHtml(latestSermon.description.slice(0, 200))}${latestSermon.description.length > 200 ? '…' : ''}</p>
+        <div style="margin-top:12px"><a class="btn btn-yellow btn-sm" href="${escapeHtml(latestSermon.youtube_link || '#')}" target="_blank" rel="noopener">▶ Watch</a></div>
+      `;
+    } else {
+      sermonEl.innerHTML = '<div class="empty"><div class="empty-icon">▶</div><p>No sermons yet.</p></div>';
+    }
+
+  </script>
+</body>
+</html>

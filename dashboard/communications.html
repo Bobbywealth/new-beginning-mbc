@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Communications — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">COMMUNICATIONS</div>
+          <h1>Communications</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="tabs" id="comms-tabs">
+  <button class="tab active" data-tab="send">Send Message</button>
+  <button class="tab" data-tab="groups">Groups</button>
+  <button class="tab" data-tab="templates">Templates</button>
+  <button class="tab" data-tab="scheduled">Scheduled</button>
+  <button class="tab" data-tab="history">Message History</button>
+  <button class="tab" data-tab="sms-settings">SMS Settings</button>
+</div>
+
+<!-- SEND TAB -->
+<div class="tab-panel active" id="tab-send">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Compose</div>
+      <form id="send-form">
+        <div class="field" style="margin-bottom:14px">
+          <label>Send To</label>
+          <select id="send-recipient" name="recipient_type">
+            <option value="all_sms">All SMS Subscribers (Opted In only)</option>
+            <option value="members_opted">All Members who opted in</option>
+            <option value="group">Ministry / Custom Group…</option>
+            <option value="individual">Individual…</option>
+            <option value="staff">Staff users</option>
+          </select>
+        </div>
+        <div class="field" id="group-picker" style="margin-bottom:14px;display:none">
+          <label>Select Group</label>
+          <select id="send-group">
+            <option>All Members</option><option>Youth</option><option>Women's Ministry</option><option>Men's Ministry</option><option>Worship Team</option><option>Outreach Team</option><option>Volunteers</option><option>Prayer Team</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label>Template (optional)</label>
+          <select id="send-template">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label>Message Body</label>
+          <textarea id="send-body" rows="6" maxlength="1600" placeholder="Type your message…" oninput="updateCharCount()"></textarea>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-top:4px">
+            <span>Segmentation: <span id="segment-count">—</span></span>
+            <span><span id="char-count">0</span> / 1600 (≈ <span id="sms-count">1</span> SMS)</span>
+          </div>
+        </div>
+        <div style="background:var(--cream);padding:10px 12px;border-radius:10px;font-size:12px;color:var(--gray);margin-bottom:14px">
+          <strong style="color:var(--black);display:block;margin-bottom:4px">Compliance footer (auto-appended):</strong>
+          <span id="compliance-footer">Reply STOP to unsubscribe. For help, reply HELP.</span>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:space-between">
+          <label class="checkbox-row"><input type="checkbox" id="send-schedule" /><span>Schedule for later</span></label>
+          <input type="datetime-local" id="send-when" style="display:none" />
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end">
+          <button class="btn btn-outline" type="button" onclick="document.getElementById('send-body').value='';updateCharCount()">Clear</button>
+          <button class="btn btn-yellow" type="button" onclick="previewMessage()">Preview</button>
+          <button class="btn btn-black" type="button" onclick="sendMessage()">📨 Send Now</button>
+        </div>
+      </form>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title">Live Preview</div>
+        <div id="preview-box" style="background:var(--cream);border-radius:14px;padding:16px;min-height:140px">
+          <div style="font-size:12px;color:var(--gray);margin-bottom:8px">📱 Text Message Preview</div>
+          <div id="preview-content" style="font-size:14px;line-height:1.5;white-space:pre-wrap">Your message will appear here…</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Quick Tips</div>
+        <ul style="padding-left:18px;font-size:13px;line-height:1.7;color:var(--gray)">
+          <li>Opted-In numbers only — non-opted numbers are excluded automatically.</li>
+          <li>SMS auto-appends STOP/HELP footer for compliance.</li>
+          <li>Schedule messages up to 90 days in advance.</li>
+          <li>Use templates to save time on repeat messages.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GROUPS TAB -->
+<div class="tab-panel" id="tab-groups">
+  <div class="sec-head">
+    <div><h2>Communication Groups</h2><p>Auto-generated from member ministry + tags. Custom groups below.</p></div>
+    <div class="sec-head-actions"><button class="btn btn-yellow" onclick="toast('Custom group builder coming soon.')">+ New Custom Group</button></div>
+  </div>
+  <div class="grid-3" id="groups-grid"></div>
+</div>
+
+<!-- TEMPLATES TAB -->
+<div class="tab-panel" id="tab-templates">
+  <div class="sec-head">
+    <div><h2>Message Templates</h2><p>Reusable message snippets for common sends.</p></div>
+    <div class="sec-head-actions"><button class="btn btn-yellow" onclick="openTemplateModal()">+ New Template</button></div>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Title</th><th>Category</th><th>Preview</th><th></th></tr></thead>
+      <tbody id="templates-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SCHEDULED TAB -->
+<div class="tab-panel" id="tab-scheduled">
+  <div class="empty"><div class="empty-icon">⏰</div><h3>No scheduled messages</h3><p>Schedule a message from the Send tab to see it here.</p></div>
+</div>
+
+<!-- HISTORY TAB -->
+<div class="tab-panel" id="tab-history">
+  <div class="sec-head"><div><h2>Message History</h2><p>Recent sent messages.</p></div></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Sent</th><th>Recipient</th><th>Recipients</th><th>Sent By</th><th>Message</th><th>Status</th></tr></thead>
+      <tbody id="history-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SMS SETTINGS TAB -->
+<div class="tab-panel" id="tab-sms-settings">
+  <div class="sec-head">
+    <div><h2>SMS Settings</h2><p style="color:var(--gray)">Admin only. Configure Twilio and compliance text.</p></div>
+  </div>
+  <div class="card card-lg" style="max-width:760px">
+    <div class="card-title">Twilio Provider (v2 — backend integration)</div>
+    <div class="field" style="margin-bottom:14px"><label>Twilio Account SID</label><input type="text" id="set-twilio-sid" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Twilio Auth Token</label><input type="password" id="set-twilio-token" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Twilio Phone Number</label><input type="tel" id="set-twilio-phone" placeholder="+15551234567" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Default Opt-In Language</label><textarea id="set-optin" rows="2"></textarea></div>
+    <div class="field" style="margin-bottom:14px"><label>Default Unsubscribe Language</label><textarea id="set-unsub" rows="2"></textarea></div>
+    <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-outline" onclick="testConnection()">Test Connection</button>
+      <button class="btn btn-black" id="save-sms-settings-btn">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Template modal -->
+<div class="modal-backdrop" id="template-modal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><h2 id="template-modal-title">New Template</h2><button class="modal-close" onclick="closeModal('template-modal')">×</button></div>
+    <div class="modal-body">
+      <div class="field" style="margin-bottom:12px"><label>Title *</label><input type="text" id="tpl-title" /></div>
+      <div class="field" style="margin-bottom:12px"><label>Category</label>
+        <select id="tpl-category">
+          <option>Service Reminders</option><option>Welcome</option><option>Prayer Calls</option><option>Events</option><option>General</option>
+        </select>
+      </div>
+      <div class="field"><label>Message Body *</label><textarea id="tpl-body" rows="5" maxlength="1600"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('template-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="tpl-save-btn">Save Template</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+if (!hasPerm('view_comms')) { window.location.href = '/login.html'; throw new Error('no perm'); }
+mountShell('comms', 'Communications');
+
+// Tabs
+document.querySelectorAll('#comms-tabs .tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#comms-tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+  });
+});
+
+// Recipient → group picker visibility
+document.getElementById('send-recipient').addEventListener('change', updateGroupPicker);
+function updateGroupPicker() {
+  const v = document.getElementById('send-recipient').value;
+  document.getElementById('group-picker').style.display = v === 'group' ? 'flex' : 'none';
+  updateSegmentCount();
+}
+function updateCharCount() {
+  const len = document.getElementById('send-body').value.length;
+  document.getElementById('char-count').textContent = len;
+  document.getElementById('sms-count').textContent = Math.ceil(len / 160) || 1;
+}
+function updateSegmentCount() {
+  const v = document.getElementById('send-recipient').value;
+  let n = 0;
+  if (v === 'all_sms') n = store_list('sms_signups').filter(s => s.opt_in_status === 'Opted In').length;
+  else if (v === 'members_opted') n = store_list('members').filter(m => m.sms_opt_in).length;
+  else if (v === 'staff') n = store_list('staff').length;
+  else if (v === 'group') n = store_list('members').filter(m => m.ministry_group).length;
+  document.getElementById('segment-count').textContent = n + ' recipient' + (n !== 1 ? 's' : '');
+}
+
+function previewMessage() {
+  const body = document.getElementById('send-body').value;
+  const footer = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe. For help, reply HELP.';
+  document.getElementById('preview-content').textContent = (body + '\n\n' + footer).trim();
+}
+
+document.getElementById('send-body').addEventListener('input', updateCharCount);
+document.getElementById('send-schedule').addEventListener('change', (e) => {
+  document.getElementById('send-when').style.display = e.target.checked ? 'block' : 'none';
+});
+
+function sendMessage() {
+  const body = document.getElementById('send-body').value.trim();
+  if (!body) { toast('Message body is required.', 'warning'); return; }
+  const v = document.getElementById('send-recipient').value;
+  const recipientLabel = document.querySelector('#send-recipient option:checked').textContent;
+  let count = 0;
+  if (v === 'all_sms') count = store_list('sms_signups').filter(s => s.opt_in_status === 'Opted In').length;
+  else if (v === 'members_opted') count = store_list('members').filter(m => m.sms_opt_in).length;
+  else if (v === 'staff') count = store_list('staff').length;
+  else if (v === 'group') count = store_list('members').filter(m => m.ministry_group).length;
+  else if (v === 'individual') count = 1;
+  if (count === 0) { toast('No recipients in this group.', 'warning'); return; }
+  if (!confirm('Send this message to ' + count + ' recipient' + (count !== 1 ? 's' : '') + '?\n\nRecipient group: ' + recipientLabel)) return;
+
+  const scheduled = document.getElementById('send-schedule').checked;
+  const when = document.getElementById('send-when').value;
+  if (scheduled && !when) { toast('Pick a schedule date/time.', 'warning'); return; }
+
+  const footer = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe.';
+  const fullBody = body + '\n\n' + footer;
+  const session = getSession();
+
+  store_add('message_history', {
+    message_body: body,
+    recipient_type: recipientLabel,
+    recipient_count: count,
+    sent_at: scheduled ? new Date(when).toISOString() : new Date().toISOString(),
+    sent_by: session.name,
+    status: scheduled ? 'Scheduled' : 'Delivered',
+    full_body: fullBody,
+  });
+  toast(scheduled ? 'Scheduled for ' + new Date(when).toLocaleString() : 'Sent to ' + count + ' recipients!', 'success');
+  document.getElementById('send-body').value = '';
+  updateCharCount();
+  renderHistory();
+}
+
+// Templates
+function renderTemplates() {
+  const sel = document.getElementById('send-template');
+  const tbody = document.getElementById('templates-tbody');
+  const tpls = store_list('templates');
+  sel.innerHTML = '<option value="">— None —</option>' + tpls.map(t => `<option value="${t.id}">${escapeHtml(t.title)}</option>`).join('');
+  if (tpls.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">✎</div><p>No templates yet.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = tpls.map(t => `
+    <tr>
+      <td><strong>${escapeHtml(t.title)}</strong></td>
+      <td><span class="badge">${escapeHtml(t.category)}</span></td>
+      <td style="max-width:340px;color:var(--gray)">${escapeHtml(t.message_body.slice(0, 100))}${t.message_body.length > 100 ? '…' : ''}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="useTemplate('${t.id}')" title="Use">▶</button>
+        <button class="btn-icon" onclick="openTemplateModal('${t.id}')" title="Edit">✎</button>
+        <button class="btn-icon" onclick="deleteTemplate('${t.id}')" title="Delete">×</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+function useTemplate(id) {
+  const t = store_list('templates').find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('send-body').value = t.message_body;
+  updateCharCount();
+  document.querySelector('#comms-tabs .tab[data-tab="send"]').click();
+  toast('Template loaded.', 'success');
+}
+let currentTemplateId = null;
+function openTemplateModal(id) {
+  currentTemplateId = id || null;
+  document.getElementById('template-modal-title').textContent = id ? 'Edit Template' : 'New Template';
+  document.getElementById('tpl-title').value = '';
+  document.getElementById('tpl-category').value = 'General';
+  document.getElementById('tpl-body').value = '';
+  if (id) {
+    const t = store_list('templates').find(x => x.id === id);
+    if (!t) return;
+    document.getElementById('tpl-title').value = t.title;
+    document.getElementById('tpl-category').value = t.category;
+    document.getElementById('tpl-body').value = t.message_body;
+  }
+  openModal('template-modal');
+}
+document.getElementById('tpl-save-btn').addEventListener('click', () => {
+  const title = document.getElementById('tpl-title').value.trim();
+  const cat = document.getElementById('tpl-category').value;
+  const body = document.getElementById('tpl-body').value.trim();
+  if (!title || !body) { toast('Title and body required.', 'warning'); return; }
+  const session = getSession();
+  if (currentTemplateId) {
+    store_update('templates', currentTemplateId, { title, category: cat, message_body: body });
+    toast('Template updated.', 'success');
+  } else {
+    store_add('templates', { title, category: cat, message_body: body, created_by: session.email });
+    toast('Template created.', 'success');
+  }
+  closeModal('template-modal');
+  renderTemplates();
+});
+function deleteTemplate(id) {
+  if (!confirm('Delete this template?')) return;
+  store_delete('templates', id);
+  toast('Template deleted.', 'success');
+  renderTemplates();
+}
+renderTemplates();
+
+// History
+function renderHistory() {
+  const history = store_list('message_history');
+  const tbody = document.getElementById('history-tbody');
+  if (history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty-icon">📜</div><p>No messages sent yet.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = history.map(h => `
+    <tr>
+      <td>${fmtDateTime(h.sent_at)}</td>
+      <td>${escapeHtml(h.recipient_type)}</td>
+      <td><strong>${h.recipient_count}</strong></td>
+      <td>${escapeHtml(h.sent_by)}</td>
+      <td style="max-width:340px;color:var(--gray)">${escapeHtml(h.message_body.slice(0, 80))}${h.message_body.length > 80 ? '…' : ''}</td>
+      <td><span class="badge ${h.status === 'Delivered' ? 'green' : 'yellow'}">${escapeHtml(h.status)}</span></td>
+    </tr>
+  `).join('');
+}
+renderHistory();
+
+// Groups (read-only summary)
+function renderGroups() {
+  const members = store_list('members');
+  const groups = ['Youth', "Women's Ministry", "Men's Ministry", 'Worship Team', 'Outreach Team', 'Volunteers', 'Prayer Team', 'Leadership'];
+  const grid = document.getElementById('groups-grid');
+  grid.innerHTML = groups.map(g => {
+    const count = members.filter(m => m.ministry_group === g).length;
+    return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between"><div><strong style="font-size:16px">${g}</strong></div><span class="badge blue">${count}</span></div><p style="color:var(--gray);font-size:13px;margin-top:8px">${count} member${count !== 1 ? 's' : ''}</p></div>`;
+  }).join('');
+}
+renderGroups();
+
+// SMS Settings — Admin only
+if (isRole('admin')) {
+  document.getElementById('set-twilio-sid').value = setting_get('twilio_sid') || '';
+  document.getElementById('set-twilio-token').value = setting_get('twilio_token') || '';
+  document.getElementById('set-twilio-phone').value = setting_get('twilio_phone') || '';
+  document.getElementById('set-optin').value = setting_get('optin_language') || '';
+  document.getElementById('set-unsub').value = setting_get('unsubscribe_language') || '';
+  document.getElementById('compliance-footer').textContent = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe. For help, reply HELP.';
+  document.getElementById('save-sms-settings-btn').addEventListener('click', () => {
+    const session = getSession();
+    setting_set('twilio_sid', document.getElementById('set-twilio-sid').value, session.email);
+    setting_set('twilio_token', document.getElementById('set-twilio-token').value, session.email);
+    setting_set('twilio_phone', document.getElementById('set-twilio-phone').value, session.email);
+    setting_set('optin_language', document.getElementById('set-optin').value, session.email);
+    setting_set('unsubscribe_language', document.getElementById('set-unsub').value, session.email);
+    document.getElementById('compliance-footer').textContent = document.getElementById('set-unsub').value || 'Reply STOP to unsubscribe. For help, reply HELP.';
+    toast('SMS settings saved.', 'success');
+  });
+  document.querySelector('#comms-tabs .tab[data-tab="sms-settings"]').style.display = '';
+} else {
+  document.querySelector('#comms-tabs .tab[data-tab="sms-settings"]').style.display = 'none';
+}
+function testConnection() {
+  toast('Twilio connection test will run once backend is connected (v2).', 'warning');
+}
+
+updateCharCount();
+updateSegmentCount();
+
+// Auto-jump to send tab from hash
+if (window.location.hash.startsWith('#send')) {
+  document.querySelector('#comms-tabs .tab[data-tab="send"]').click();
+}
+
+  </script>
+</body>
+</html>

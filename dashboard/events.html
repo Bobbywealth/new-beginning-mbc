@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events Manager — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">EVENTS MANAGER</div>
+          <h1>Events Manager</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Events Manager</h2>
+    <p>Create and manage events that appear on the public website.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-yellow" onclick="openEventModal()">+ Add Event</button>
+  </div>
+</div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="event-search" placeholder="🔍 Search events…" />
+  <select class="filter-select" id="event-filter">
+    <option value="">All Events</option>
+    <option value="public">Public only</option>
+    <option value="featured">Featured</option>
+    <option value="upcoming">Upcoming</option>
+    <option value="past">Past</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Title</th><th>Time</th><th>Location</th><th>Ministry</th><th>Public</th><th>Featured</th><th></th></tr></thead>
+    <tbody id="events-tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="event-modal">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header"><h2 id="event-modal-title">Add Event</h2><button class="modal-close" onclick="closeModal('event-modal')">×</button></div>
+    <div class="modal-body">
+      <form id="event-form" class="form-grid">
+        <div class="field full"><label>Event Title *</label><input type="text" name="title" required /></div>
+        <div class="field"><label>Date *</label><input type="date" name="date" required /></div>
+        <div class="field"><label>Start Time</label><input type="time" name="start_time" /></div>
+        <div class="field"><label>End Time</label><input type="time" name="end_time" /></div>
+        <div class="field"><label>Location</label><input type="text" name="location" /></div>
+        <div class="field"><label>Ministry</label>
+          <select name="ministry"><option value=""></option><option>Youth</option><option>Worship</option><option>Outreach</option><option>Women's Ministry</option><option>Men's Ministry</option><option>Kids</option></select>
+        </div>
+        <div class="field full"><label>Description</label><textarea name="description" rows="3"></textarea></div>
+        <div class="field"><label class="checkbox-row"><input type="checkbox" name="is_public" checked /><span>Public (show on website)</span></label></div>
+        <div class="field"><label class="checkbox-row"><input type="checkbox" name="featured_on_homepage" /><span>Feature on homepage</span></label></div>
+        <div class="field"><label class="checkbox-row"><input type="checkbox" name="rsvp_required" /><span>RSVP Required</span></label></div>
+        <div class="field"><label class="checkbox-row"><input type="checkbox" name="text_reminder_enabled" checked /><span>Send text reminder</span></label></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('event-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="event-save-btn">Save Event</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+mountShell('events', 'Events');
+let currentEventId = null;
+
+function renderEvents() {
+  const q = document.getElementById('event-search').value.toLowerCase();
+  const f = document.getElementById('event-filter').value;
+  const today = new Date(new Date().toDateString());
+  const events = store_list('events').filter(e => {
+    if (q && ![e.title, e.location, e.description].join(' ').toLowerCase().includes(q)) return false;
+    if (f === 'public' && !e.is_public) return false;
+    if (f === 'featured' && !e.featured_on_homepage) return false;
+    if (f === 'upcoming' && new Date(e.date) < today) return false;
+    if (f === 'past' && new Date(e.date) >= today) return false;
+    return true;
+  }).sort((a, b) => a.date.localeCompare(b.date));
+  const tbody = document.getElementById('events-tbody');
+  if (events.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">☷</div><h3>No events yet</h3><p>Click + Add Event to create one.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = events.map(e => {
+    const past = new Date(e.date) < today;
+    return `
+    <tr>
+      <td><strong>${fmtDate(e.date)}</strong>${past ? '<br><span class="badge gray" style="font-size:9px;margin-top:2px">PAST</span>' : ''}</td>
+      <td><strong>${escapeHtml(e.title)}</strong>${e.description ? '<br><span style="color:var(--gray);font-size:12px">' + escapeHtml(e.description.slice(0,80)) + (e.description.length > 80 ? '…' : '') + '</span>' : ''}</td>
+      <td>${fmtTime(e.start_time)}${e.end_time ? ' – ' + fmtTime(e.end_time) : ''}</td>
+      <td>${escapeHtml(e.location) || '—'}</td>
+      <td>${escapeHtml(e.ministry) || '—'}</td>
+      <td>${e.is_public ? '<span class="badge green">✓</span>' : '<span class="badge gray">—</span>'}</td>
+      <td>${e.featured_on_homepage ? '<span class="badge yellow">★</span>' : '<span class="badge gray">—</span>'}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="openEventModal('${e.id}')" title="Edit">✎</button>
+        <button class="btn-icon" onclick="deleteEvent('${e.id}')" title="Delete">×</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+['event-search', 'event-filter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderEvents);
+  document.getElementById(id).addEventListener('change', renderEvents);
+});
+
+function openEventModal(id) {
+  currentEventId = id || null;
+  document.getElementById('event-modal-title').textContent = id ? 'Edit Event' : 'Add Event';
+  const form = document.getElementById('event-form');
+  form.reset();
+  if (id) {
+    const e = store_get('events', id);
+    if (!e) return;
+    form.title.value = e.title || '';
+    form.date.value = e.date || '';
+    form.start_time.value = e.start_time || '';
+    form.end_time.value = e.end_time || '';
+    form.location.value = e.location || '';
+    form.ministry.value = e.ministry || '';
+    form.description.value = e.description || '';
+    form.is_public.checked = !!e.is_public;
+    form.featured_on_homepage.checked = !!e.featured_on_homepage;
+    form.rsvp_required.checked = !!e.rsvp_required;
+    form.text_reminder_enabled.checked = !!e.text_reminder_enabled;
+  } else {
+    form.is_public.checked = true;
+    form.text_reminder_enabled.checked = true;
+  }
+  openModal('event-modal');
+}
+
+document.getElementById('event-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('event-form');
+  const data = {
+    title: form.title.value.trim(),
+    date: form.date.value,
+    start_time: form.start_time.value,
+    end_time: form.end_time.value,
+    location: form.location.value.trim(),
+    ministry: form.ministry.value,
+    description: form.description.value.trim(),
+    is_public: form.is_public.checked,
+    featured_on_homepage: form.featured_on_homepage.checked,
+    rsvp_required: form.rsvp_required.checked,
+    text_reminder_enabled: form.text_reminder_enabled.checked,
+  };
+  if (!data.title || !data.date) { toast('Title and date are required.', 'warning'); return; }
+  if (currentEventId) {
+    store_update('events', currentEventId, data);
+    toast('Event updated.', 'success');
+  } else {
+    store_add('events', data);
+    toast('Event added. Refresh the public site to see it.', 'success');
+  }
+  closeModal('event-modal');
+  renderEvents();
+});
+
+function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  store_delete('events', id);
+  toast('Event deleted.', 'success');
+  renderEvents();
+}
+
+if (window.location.hash === '#add') setTimeout(() => openEventModal(), 100);
+renderEvents();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS Sign-Ups — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">SMS SIGN-UPS</div>
+          <h1>SMS Sign-Ups</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>SMS Sign-Ups</h2>
+    <p>People who joined the church text list. Tap a row to view / manage.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-outline" onclick="exportCSV('sms_signups')">⬇ Export CSV</button>
+    <button class="btn btn-yellow" onclick="openSmsModal()">+ Add Sign-Up</button>
+  </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+  <div class="stat"><div class="stat-label">Opted In</div><div class="stat-value" data-stat="opted">—</div></div>
+  <div class="stat blue"><div class="stat-label">Pending</div><div class="stat-value" data-stat="pending">—</div></div>
+  <div class="stat"><div class="stat-label">Unsubscribed</div><div class="stat-value" data-stat="unsub">—</div></div>
+  <div class="stat black"><div class="stat-label">Invalid</div><div class="stat-value" data-stat="invalid">—</div></div>
+</div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="sms-search" placeholder="🔍 Search…" />
+  <select class="filter-select" id="sms-status">
+    <option value="">All Statuses</option>
+    <option>Opted In</option><option>Pending</option><option>Unsubscribed</option><option>Invalid Number</option>
+  </select>
+  <select class="filter-select" id="sms-source">
+    <option value="">All Sources</option>
+    <option>Website Form</option><option>Manual Entry</option><option>Event Form</option><option>Church Service</option><option>QR Code</option><option>Other</option>
+  </select>
+  <button class="btn btn-outline btn-sm" onclick="document.getElementById('sms-search').value='';document.getElementById('sms-status').value='';document.getElementById('sms-source').value='';renderSms();">Reset</button>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>Name</th><th>Phone</th><th>Email</th><th>Status</th><th>Source</th><th>Opt-In Date</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="sms-tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="sms-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <h2 id="sms-modal-title">Add SMS Sign-Up</h2>
+      <button class="modal-close" onclick="closeModal('sms-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="sms-form" class="form-grid">
+        <div class="field"><label>First Name *</label><input type="text" name="first_name" required /></div>
+        <div class="field"><label>Last Name *</label><input type="text" name="last_name" required /></div>
+        <div class="field"><label>Phone *</label><input type="tel" name="phone" required /></div>
+        <div class="field"><label>Email</label><input type="email" name="email" /></div>
+        <div class="field"><label>Opt-In Status</label>
+          <select name="opt_in_status">
+            <option>Opted In</option><option>Pending</option><option>Unsubscribed</option><option>Invalid Number</option>
+          </select>
+        </div>
+        <div class="field"><label>Source</label>
+          <select name="opt_in_source">
+            <option>Manual Entry</option><option>Website Form</option><option>Event Form</option><option>Church Service</option><option>QR Code</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field full"><label>Tags (comma separated)</label><input type="text" name="tags" /></div>
+        <div class="field full"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('sms-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="sms-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+mountShell('sms', 'SMS Sign-Ups');
+
+let currentSmsId = null;
+
+function renderSms() {
+  const q = document.getElementById('sms-search').value.toLowerCase();
+  const status = document.getElementById('sms-status').value;
+  const source = document.getElementById('sms-source').value;
+  const list = store_list('sms_signups').filter(s => {
+    if (q && ![s.first_name, s.last_name, s.phone, s.email].join(' ').toLowerCase().includes(q)) return false;
+    if (status && s.opt_in_status !== status) return false;
+    if (source && s.opt_in_source !== source) return false;
+    return true;
+  });
+
+  document.querySelector('[data-stat="opted"]').textContent = list.filter(s => s.opt_in_status === 'Opted In').length;
+  document.querySelector('[data-stat="pending"]').textContent = list.filter(s => s.opt_in_status === 'Pending').length;
+  document.querySelector('[data-stat="unsub"]').textContent = list.filter(s => s.opt_in_status === 'Unsubscribed').length;
+  document.querySelector('[data-stat="invalid"]').textContent = list.filter(s => s.opt_in_status === 'Invalid Number').length;
+
+  const tbody = document.getElementById('sms-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">✉</div><h3>No SMS sign-ups yet</h3><p>Add one manually or share the website opt-in form.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(s => {
+    const statusColors = { 'Opted In': 'green', 'Pending': 'yellow', 'Unsubscribed': 'gray', 'Invalid Number': 'red' };
+    return `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${initials(s.first_name + ' ' + s.last_name)}</div><div><strong>${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</strong></div></div></td>
+      <td>${escapeHtml(formatPhone(s.phone))}</td>
+      <td>${escapeHtml(s.email) || '—'}</td>
+      <td><span class="badge ${statusColors[s.opt_in_status] || ''}">${escapeHtml(s.opt_in_status)}</span></td>
+      <td>${escapeHtml(s.opt_in_source)}</td>
+      <td>${fmtDate(s.opt_in_date || s.created_at)}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="openSmsModal('${s.id}')" title="Edit">✎</button>
+        ${s.opt_in_status !== 'Opted In' ? `<button class="btn-icon" onclick="approveSms('${s.id}')" title="Approve">✓</button>` : ''}
+        ${s.opt_in_status !== 'Unsubscribed' ? `<button class="btn-icon" onclick="unsubSms('${s.id}')" title="Mark Unsubscribed">⏏</button>` : ''}
+        <button class="btn-icon" onclick="convertToMember('${s.id}')" title="Convert to Member">＋</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+['sms-search', 'sms-status', 'sms-source'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderSms);
+  document.getElementById(id).addEventListener('change', renderSms);
+});
+
+function openSmsModal(id) {
+  currentSmsId = id || null;
+  document.getElementById('sms-modal-title').textContent = id ? 'Edit SMS Sign-Up' : 'Add SMS Sign-Up';
+  const form = document.getElementById('sms-form');
+  form.reset();
+  if (id) {
+    const s = store_get('sms_signups', id);
+    if (!s) return;
+    form.first_name.value = s.first_name || '';
+    form.last_name.value = s.last_name || '';
+    form.phone.value = s.phone || '';
+    form.email.value = s.email || '';
+    form.opt_in_status.value = s.opt_in_status || 'Opted In';
+    form.opt_in_source.value = s.opt_in_source || 'Manual Entry';
+    form.tags.value = (s.tags || []).join(', ');
+    form.notes.value = s.notes || '';
+  }
+  openModal('sms-modal');
+}
+
+document.getElementById('sms-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('sms-form');
+  const data = {
+    first_name: form.first_name.value.trim(),
+    last_name: form.last_name.value.trim(),
+    phone: form.phone.value.trim(),
+    email: form.email.value.trim(),
+    opt_in_status: form.opt_in_status.value,
+    opt_in_source: form.opt_in_source.value,
+    opt_in_date: form.opt_in_status.value === 'Opted In' ? new Date().toISOString() : null,
+    consent_text: 'I agree to receive text messages from New Beginning Missionary Baptist Church. Message & data rates may apply. Reply STOP to unsubscribe.',
+    tags: form.tags.value.split(',').map(s => s.trim()).filter(Boolean),
+    member_status: 'Guest',
+    notes: form.notes.value.trim(),
+  };
+  if (!data.first_name || !data.last_name || !data.phone) {
+    toast('First name, last name, and phone are required.', 'warning');
+    return;
+  }
+  if (currentSmsId) {
+    store_update('sms_signups', currentSmsId, data);
+    toast('Sign-up updated.', 'success');
+  } else {
+    store_add('sms_signups', data);
+    toast('Sign-up added.', 'success');
+  }
+  closeModal('sms-modal');
+  renderSms();
+});
+
+function approveSms(id) {
+  store_update('sms_signups', id, { opt_in_status: 'Opted In', opt_in_date: new Date().toISOString() });
+  toast('Marked as Opted In.', 'success');
+  renderSms();
+}
+function unsubSms(id) {
+  if (!confirm('Mark this number as Unsubscribed?')) return;
+  store_update('sms_signups', id, { opt_in_status: 'Unsubscribed' });
+  toast('Marked as Unsubscribed.', 'success');
+  renderSms();
+}
+function convertToMember(id) {
+  const s = store_get('sms_signups', id);
+  if (!s) return;
+  if (s.opt_in_status !== 'Opted In') {
+    toast('Only Opted-In numbers can be converted to a member.', 'warning');
+    return;
+  }
+  // Add as member
+  const member = {
+    first_name: s.first_name,
+    last_name: s.last_name,
+    phone: s.phone,
+    email: s.email,
+    membership_status: 'New Member',
+    ministry_group: '',
+    sms_opt_in: true,
+    tags: ['From SMS Sign-Up'],
+    notes: 'Imported from SMS sign-ups on ' + new Date().toLocaleDateString(),
+  };
+  store_add('members', member);
+  store_update('sms_signups', id, { member_status: 'Member' });
+  toast('Added as member: ' + s.first_name + ' ' + s.last_name, 'success');
+  renderSms();
+}
+
+renderSms();
+
+  </script>
+</body>
+</html>

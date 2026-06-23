@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sermon Manager — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">SERMON MANAGER</div>
+          <h1>Sermon Manager</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Sermon Manager</h2>
+    <p>Add and manage sermons that appear on the public website.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-yellow" onclick="openSermonModal()">+ Add Sermon</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Title</th><th>Speaker</th><th>Series</th><th>Scripture</th><th>Featured</th><th></th></tr></thead>
+    <tbody id="sermons-tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="sermon-modal">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header"><h2 id="sermon-modal-title">Add Sermon</h2><button class="modal-close" onclick="closeModal('sermon-modal')">×</button></div>
+    <div class="modal-body">
+      <form id="sermon-form" class="form-grid">
+        <div class="field full"><label>Title *</label><input type="text" name="title" required /></div>
+        <div class="field"><label>Speaker</label><input type="text" name="speaker" value="Pastor Eric Readon" /></div>
+        <div class="field"><label>Date</label><input type="date" name="date" /></div>
+        <div class="field"><label>Scripture</label><input type="text" name="scripture" /></div>
+        <div class="field"><label>Series</label><input type="text" name="series_name" /></div>
+        <div class="field full"><label>YouTube Link</label><input type="url" name="youtube_link" placeholder="https://www.youtube.com/watch?v=…" /></div>
+        <div class="field full"><label>Audio Link</label><input type="url" name="audio_link" /></div>
+        <div class="field full"><label>Description</label><textarea name="description" rows="4"></textarea></div>
+        <div class="field"><label class="checkbox-row"><input type="checkbox" name="featured" /><span>Featured on homepage</span></label></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('sermon-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="sermon-save-btn">Save Sermon</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+mountShell('sermons', 'Sermons');
+let currentSermonId = null;
+
+function renderSermons() {
+  const sermons = store_list('sermons').sort((a, b) => b.date.localeCompare(a.date));
+  const tbody = document.getElementById('sermons-tbody');
+  if (sermons.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">▶</div><h3>No sermons yet</h3><p>Click + Add Sermon to create one.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = sermons.map(s => `
+    <tr>
+      <td><strong>${fmtDate(s.date)}</strong></td>
+      <td><strong>${escapeHtml(s.title)}</strong>${s.description ? '<br><span style="color:var(--gray);font-size:12px">' + escapeHtml(s.description.slice(0,80)) + (s.description.length > 80 ? '…' : '') + '</span>' : ''}</td>
+      <td>${escapeHtml(s.speaker)}</td>
+      <td>${escapeHtml(s.series_name) || '—'}</td>
+      <td>${escapeHtml(s.scripture) || '—'}</td>
+      <td>${s.featured ? '<span class="badge yellow">★ Featured</span>' : '<span class="badge gray">—</span>'}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="openSermonModal('${s.id}')" title="Edit">✎</button>
+        <button class="btn-icon" onclick="deleteSermon('${s.id}')" title="Delete">×</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+function openSermonModal(id) {
+  currentSermonId = id || null;
+  document.getElementById('sermon-modal-title').textContent = id ? 'Edit Sermon' : 'Add Sermon';
+  const form = document.getElementById('sermon-form');
+  form.reset();
+  if (id) {
+    const s = store_get('sermons', id);
+    if (!s) return;
+    form.title.value = s.title || '';
+    form.speaker.value = s.speaker || 'Pastor Eric Readon';
+    form.date.value = s.date || '';
+    form.scripture.value = s.scripture || '';
+    form.series_name.value = s.series_name || '';
+    form.youtube_link.value = s.youtube_link || '';
+    form.audio_link.value = s.audio_link || '';
+    form.description.value = s.description || '';
+    form.featured.checked = !!s.featured;
+  } else {
+    form.speaker.value = 'Pastor Eric Readon';
+    form.date.value = new Date().toISOString().slice(0, 10);
+  }
+  openModal('sermon-modal');
+}
+
+document.getElementById('sermon-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('sermon-form');
+  const data = {
+    title: form.title.value.trim(),
+    speaker: form.speaker.value.trim(),
+    date: form.date.value,
+    scripture: form.scripture.value.trim(),
+    series_name: form.series_name.value.trim(),
+    youtube_link: form.youtube_link.value.trim(),
+    audio_link: form.audio_link.value.trim(),
+    description: form.description.value.trim(),
+    featured: form.featured.checked,
+  };
+  if (!data.title) { toast('Title is required.', 'warning'); return; }
+  if (currentSermonId) {
+    store_update('sermons', currentSermonId, data);
+    toast('Sermon updated.', 'success');
+  } else {
+    store_add('sermons', data);
+    toast('Sermon added. Refresh public site to see it.', 'success');
+  }
+  closeModal('sermon-modal');
+  renderSermons();
+});
+
+function deleteSermon(id) {
+  if (!confirm('Delete this sermon?')) return;
+  store_delete('sermons', id);
+  toast('Sermon deleted.', 'success');
+  renderSermons();
+}
+
+if (window.location.hash === '#add') setTimeout(() => openSermonModal(), 100);
+renderSermons();
+
+  </script>
+</body>
+</html>

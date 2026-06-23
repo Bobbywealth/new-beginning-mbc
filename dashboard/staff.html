@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Users — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">STAFF USERS</div>
+          <h1>Staff Users</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Staff Users</h2>
+    <p style="color:var(--gray)">Admin only. Manage internal dashboard users.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-yellow" onclick="openStaffModal()">+ Invite Staff</button>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
+    <tbody id="staff-tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="staff-modal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header"><h2 id="staff-modal-title">Invite Staff User</h2><button class="modal-close" onclick="closeModal('staff-modal')">×</button></div>
+    <div class="modal-body">
+      <form id="staff-form" class="form-grid">
+        <div class="field"><label>Name *</label><input type="text" name="name" required /></div>
+        <div class="field"><label>Email *</label><input type="email" name="email" required /></div>
+        <div class="field"><label>Phone</label><input type="tel" name="phone" /></div>
+        <div class="field"><label>Role *</label><select name="role"><option>staff</option><option>pastor</option><option>admin</option></select></div>
+        <div class="field"><label>Status</label><select name="status"><option>Active</option><option>Disabled</option></select></div>
+        <div class="field full"><label>Permissions</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="view_members" /><span>View Members</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="edit_members" /><span>Edit Members</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="view_sms" /><span>View SMS</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="edit_sms" /><span>Edit SMS</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="view_comms" /><span>View Comms</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="send_comms" /><span>Send Comms</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="manage_events" /><span>Manage Events</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="manage_sermons" /><span>Manage Sermons</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="view_prayer" /><span>View Prayer Requests</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="edit_prayer" /><span>Edit Prayer Requests</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="manage_staff" /><span>Manage Staff</span></label>
+            <label class="checkbox-row"><input type="checkbox" name="perm" value="view_reports" /><span>View Reports</span></label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('staff-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="staff-save-btn">Save User</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+if (!isRole('admin')) { window.location.href = '/login.html'; throw new Error('admin only'); }
+mountShell('staff', 'Staff Users');
+let currentStaffId = null;
+
+const ALL_PERMS = ['view_members', 'edit_members', 'view_sms', 'edit_sms', 'view_comms', 'send_comms', 'manage_events', 'manage_sermons', 'view_prayer', 'edit_prayer', 'manage_staff', 'view_reports'];
+
+function renderStaff() {
+  const staff = store_list('staff');
+  const tbody = document.getElementById('staff-tbody');
+  if (staff.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">☰</div><p>No staff users.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = staff.map(s => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar">${initials(s.name)}</div><strong>${escapeHtml(s.name)}</strong></div></td>
+      <td>${escapeHtml(s.email)}</td>
+      <td>${escapeHtml(s.phone) || '—'}</td>
+      <td><span class="badge ${s.role === 'admin' ? 'black' : s.role === 'pastor' ? 'blue' : ''}">${s.role.toUpperCase()}</span></td>
+      <td><span class="badge ${s.status === 'Active' ? 'green' : 'red'}">${s.status}</span></td>
+      <td>${fmtDate(s.created_at)}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="openStaffModal('${s.id}')" title="Edit">✎</button>
+        <button class="btn-icon" onclick="resetPassword('${s.id}')" title="Reset password">🔑</button>
+        ${s.status === 'Active' ? `<button class="btn-icon" onclick="toggleUser('${s.id}')" title="Disable">⏸</button>` : `<button class="btn-icon" onclick="toggleUser('${s.id}')" title="Enable">▶</button>`}
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+function openStaffModal(id) {
+  currentStaffId = id || null;
+  document.getElementById('staff-modal-title').textContent = id ? 'Edit Staff User' : 'Invite Staff User';
+  const form = document.getElementById('staff-form');
+  form.reset();
+  document.querySelectorAll('input[name="perm"]').forEach(c => c.checked = false);
+  if (id) {
+    const s = store_get('staff', id);
+    if (!s) return;
+    form.name.value = s.name || '';
+    form.email.value = s.email || '';
+    form.phone.value = s.phone || '';
+    form.role.value = s.role || 'staff';
+    form.status.value = s.status || 'Active';
+    (s.perms || []).forEach(p => {
+      const cb = document.querySelector('input[name="perm"][value="' + p + '"]');
+      if (cb) cb.checked = true;
+    });
+  } else {
+    form.role.value = 'staff';
+    form.status.value = 'Active';
+  }
+  openModal('staff-modal');
+}
+
+document.getElementById('staff-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('staff-form');
+  const perms = Array.from(document.querySelectorAll('input[name="perm"]:checked')).map(c => c.value);
+  if (form.role.value === 'admin') perms.push('*');
+  const data = {
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    phone: form.phone.value.trim(),
+    role: form.role.value,
+    perms: perms,
+    status: form.status.value,
+  };
+  if (!data.name || !data.email) { toast('Name and email required.', 'warning'); return; }
+  if (currentStaffId) {
+    store_update('staff', currentStaffId, data);
+    toast('User updated.', 'success');
+  } else {
+    store_add('staff', data);
+    toast('Staff user invited (demo — no email sent).', 'success');
+  }
+  closeModal('staff-modal');
+  renderStaff();
+});
+
+function resetPassword(id) {
+  const s = store_get('staff', id);
+  if (!s) return;
+  const np = prompt('Send password reset to ' + s.email + '?\n\n(In demo mode, this just shows a confirmation.)');
+  if (np !== null) toast('Reset link sent to ' + s.email + ' (demo).', 'success');
+}
+
+function toggleUser(id) {
+  const s = store_get('staff', id);
+  if (!s) return;
+  const next = s.status === 'Active' ? 'Disabled' : 'Active';
+  store_update('staff', id, { status: next });
+  toast('User ' + next.toLowerCase() + '.', 'success');
+  renderStaff();
+}
+
+renderStaff();
+
+  </script>
+</body>
+</html>

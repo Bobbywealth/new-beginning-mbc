@@ -241,7 +241,7 @@
       <div class="contact-bar" id="contact">
         <div class="contact-item">
           <div class="contact-icon">📍</div>
-          <div><small>Visit Us</small><strong>2801 NW 170th Street<br>Miami Gardens, FL</strong></div>
+          <div><small>Visit Us</small><strong>2801 NW 170th Street<br>Miami Gardens, FL 33056</strong></div>
         </div>
         <div class="contact-item">
           <div class="contact-icon">☎</div>
@@ -256,6 +256,38 @@
           <div><small>Follow Us</small><strong>Instagram • Facebook • YouTube</strong></div>
         </div>
       </div>
+
+
+      <section id="join-text-list" style="background: var(--cream-2); padding: 80px 62px;">
+        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+          <div class="eyebrow" style="margin-bottom: 14px;">Stay Connected</div>
+          <h2 style="font-family: Anton, Impact, sans-serif; font-size: clamp(40px, 6vw, 64px); letter-spacing: -.01em; text-transform: uppercase; line-height: 1;">
+            Join Our<br>Church <span style="color: var(--blue-deep)">Text List</span>
+          </h2>
+          <p style="max-width: 540px; margin: 18px auto 32px; color: var(--soft-black); font-size: 17px; line-height: 1.6;">
+            Stay connected with service reminders, church updates, events, prayer calls, and special announcements — straight to your phone.
+          </p>
+
+          <form id="sms-optin-form" style="background: white; border-radius: 22px; padding: 32px; box-shadow: var(--shadow); text-align: left;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="field"><label>First Name *</label><input type="text" name="first_name" required style="width:100%;padding:14px 16px;border:1px solid rgba(0,0,0,.15);border-radius:11px;font-family:inherit;font-size:15px;background:white;"></div>
+              <div class="field"><label>Last Name *</label><input type="text" name="last_name" required style="width:100%;padding:14px 16px;border:1px solid rgba(0,0,0,.15);border-radius:11px;font-family:inherit;font-size:15px;background:white;"></div>
+              <div class="field"><label>Phone *</label><input type="tel" name="phone" required style="width:100%;padding:14px 16px;border:1px solid rgba(0,0,0,.15);border-radius:11px;font-family:inherit;font-size:15px;background:white;"></div>
+              <div class="field"><label>Email (optional)</label><input type="email" name="email" style="width:100%;padding:14px 16px;border:1px solid rgba(0,0,0,.15);border-radius:11px;font-family:inherit;font-size:15px;background:white;"></div>
+            </div>
+            <label style="display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; font-size: 13px; color: var(--soft-black); cursor: pointer;">
+              <input type="checkbox" name="consent" required style="width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; accent-color: var(--black);" />
+              <span>I agree to receive text messages from New Beginning Missionary Baptist Church. Message &amp; data rates may apply. Reply STOP to unsubscribe.</span>
+            </label>
+            <button type="submit" class="btn btn-black btn-lg" style="width: 100%; margin-top: 20px; border: 0;">Join Text List →</button>
+            <div id="sms-optin-success" style="display:none; margin-top:18px; padding:18px; background: var(--yellow-soft); border-radius: 14px; text-align: center;">
+              <div style="font-size: 38px; margin-bottom: 8px;">✉️</div>
+              <strong style="display:block;font-size:18px;margin-bottom:4px;">You're in!</strong>
+              <span style="font-size:14px;color:var(--soft-black);">Thanks for joining our text list. We'll be in touch soon.</span>
+            </div>
+          </form>
+        </div>
+      </section>
     </main>
 
 
@@ -359,6 +391,40 @@
         document.body.classList.toggle('nav-open', open);
       });
     }
+  })();
+
+  // SMS opt-in form → save to localStorage so /dashboard/sms-signups.html shows it
+  (function () {
+    const form = document.getElementById('sms-optin-form');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      if (!data.consent) { alert('Please agree to receive text messages before submitting.'); return; }
+      try {
+        const KEY = 'nbmc_data_sms_signups';
+        const list = JSON.parse(localStorage.getItem(KEY) || '[]');
+        const item = {
+          id: 's' + Date.now().toString(36),
+          first_name: (data.first_name || '').trim(),
+          last_name: (data.last_name || '').trim(),
+          phone: (data.phone || '').trim(),
+          email: (data.email || '').trim(),
+          opt_in_status: 'Opted In',
+          opt_in_date: new Date().toISOString(),
+          opt_in_source: 'Website Form',
+          consent_text: data.consent || '',
+          tags: [],
+          member_status: 'Guest',
+          notes: 'Submitted via public website form.',
+          created_at: new Date().toISOString(),
+        };
+        list.unshift(item);
+        localStorage.setItem(KEY, JSON.stringify(list));
+      } catch (err) { /* localStorage unavailable, fail silently */ }
+      form.style.display = 'none';
+      document.getElementById('sms-optin-success').style.display = 'block';
+    });
   })();
 </script>
 </html>

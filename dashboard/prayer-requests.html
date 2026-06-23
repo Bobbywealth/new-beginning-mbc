@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prayer Requests — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div id="mobile-bar-host"></div>
+  <div class="dash">
+    <div id="sidebar-host"></div>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="breadcrumb" id="breadcrumb">PRAYER REQUESTS</div>
+          <h1>Prayer Requests</h1>
+        </div>
+        <div class="search" id="search-wrap">
+          <span>🔍</span>
+          <input type="text" id="search-input" placeholder="Search…" />
+        </div>
+        <div class="topbar-actions">
+          <div id="topbar-user" style="display:flex;align-items:center;gap:12px"></div>
+        </div>
+      </div>
+      <div class="content" id="page-content">
+
+<div class="sec-head">
+  <div>
+    <h2>Prayer Requests</h2>
+    <p>From website form and manual entries. Private requests only visible to Admin / Pastor.</p>
+  </div>
+  <div class="sec-head-actions">
+    <button class="btn btn-yellow" onclick="openPrayerModal()">+ Add Request</button>
+  </div>
+</div>
+
+<div class="filters">
+  <input type="text" class="filter-input" id="prayer-search" placeholder="🔍 Search…" />
+  <select class="filter-select" id="prayer-status">
+    <option value="">All Statuses</option><option>New</option><option>Praying</option><option>Follow-Up Needed</option><option>Contacted</option><option>Resolved</option><option>Archived</option>
+  </select>
+  <select class="filter-select" id="prayer-urgency">
+    <option value="">Any Urgency</option><option>Urgent</option><option>Important</option><option>Normal</option>
+  </select>
+  <select class="filter-select" id="prayer-privacy">
+    <option value="">Any Privacy</option><option>public</option><option>private</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Name</th><th>Request</th><th>Urgency</th><th>Status</th><th>Assigned</th><th>Privacy</th><th></th></tr></thead>
+    <tbody id="prayer-tbody"></tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="prayer-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header"><h2 id="prayer-modal-title">Add Prayer Request</h2><button class="modal-close" onclick="closeModal('prayer-modal')">×</button></div>
+    <div class="modal-body">
+      <form id="prayer-form" class="form-grid">
+        <div class="field"><label>Name</label><input type="text" name="name" placeholder="Name or Anonymous" /></div>
+        <div class="field"><label>Phone</label><input type="tel" name="phone" /></div>
+        <div class="field full"><label>Email</label><input type="email" name="email" /></div>
+        <div class="field full"><label>Prayer Request *</label><textarea name="request_text" rows="4" required></textarea></div>
+        <div class="field"><label>Urgency</label><select name="urgency_level"><option>Normal</option><option>Important</option><option>Urgent</option></select></div>
+        <div class="field"><label>Privacy</label><select name="privacy_level"><option value="public">Public (visible to all staff)</option><option value="private">Private (Admin/Pastor only)</option></select></div>
+        <div class="field"><label>Status</label><select name="status"><option>New</option><option>Praying</option><option>Follow-Up Needed</option><option>Contacted</option><option>Resolved</option><option>Archived</option></select></div>
+        <div class="field"><label>Assigned To</label>
+          <select name="assigned_to">
+            <option value="">— Unassigned —</option>
+            <option>Pastor Eric Readon</option>
+            <option>Sarah Jenkins</option>
+            <option>Marcus Lee</option>
+          </select>
+        </div>
+        <div class="field full"><label>Internal Notes</label><textarea name="notes" rows="2"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('prayer-modal')">Cancel</button>
+      <button class="btn btn-yellow" id="prayer-save-btn">Save Request</button>
+    </div>
+  </div>
+</div>
+
+      </div>
+    </main>
+  </div>
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+
+mountShell('prayer', 'Prayer Requests');
+let currentPrayerId = null;
+
+function renderPrayer() {
+  const q = document.getElementById('prayer-search').value.toLowerCase();
+  const status = document.getElementById('prayer-status').value;
+  const urgency = document.getElementById('prayer-urgency').value;
+  const privacy = document.getElementById('prayer-privacy').value;
+  const session = getSession();
+  const canSeePrivate = session.role === 'admin' || session.role === 'pastor';
+
+  const list = store_list('prayer_requests').filter(p => {
+    if (q && ![p.name, p.request_text, p.notes].join(' ').toLowerCase().includes(q)) return false;
+    if (status && p.status !== status) return false;
+    if (urgency && p.urgency_level !== urgency) return false;
+    if (privacy && p.privacy_level !== privacy) return false;
+    if (!canSeePrivate && p.privacy_level === 'private') return false;
+    return true;
+  });
+  const tbody = document.getElementById('prayer-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">♡</div><h3>No prayer requests</h3><p>Add one manually or wait for website submissions.</p></div></td></tr>';
+    return;
+  }
+  const urgencyColor = { Urgent: 'red', Important: 'yellow', Normal: 'gray' };
+  const statusColor = { New: 'red', Praying: 'blue', 'Follow-Up Needed': 'yellow', Contacted: 'blue', Resolved: 'green', Archived: 'gray' };
+  tbody.innerHTML = list.map(p => `
+    <tr>
+      <td>${relTime(p.created_at)}</td>
+      <td><strong>${escapeHtml(p.name || 'Anonymous')}</strong>${p.phone ? '<br><span style="color:var(--gray);font-size:12px">' + escapeHtml(formatPhone(p.phone)) + '</span>' : ''}</td>
+      <td style="max-width:300px">${escapeHtml(p.request_text.slice(0, 100))}${p.request_text.length > 100 ? '…' : ''}</td>
+      <td><span class="badge ${urgencyColor[p.urgency_level] || 'gray'}">${escapeHtml(p.urgency_level)}</span></td>
+      <td><span class="badge ${statusColor[p.status] || 'gray'}">${escapeHtml(p.status)}</span></td>
+      <td>${escapeHtml(p.assigned_to) || '—'}</td>
+      <td>${p.privacy_level === 'private' ? '<span class="badge black">🔒 Private</span>' : '<span class="badge">Public</span>'}</td>
+      <td><div class="actions">
+        <button class="btn-icon" onclick="openPrayerModal('${p.id}')" title="Edit">✎</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+
+['prayer-search', 'prayer-status', 'prayer-urgency', 'prayer-privacy'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) { el.addEventListener('input', renderPrayer); el.addEventListener('change', renderPrayer); }
+});
+
+function openPrayerModal(id) {
+  currentPrayerId = id || null;
+  document.getElementById('prayer-modal-title').textContent = id ? 'Edit Prayer Request' : 'Add Prayer Request';
+  const form = document.getElementById('prayer-form');
+  form.reset();
+  if (id) {
+    const p = store_get('prayer_requests', id);
+    if (!p) return;
+    form.name.value = p.name || '';
+    form.phone.value = p.phone || '';
+    form.email.value = p.email || '';
+    form.request_text.value = p.request_text || '';
+    form.urgency_level.value = p.urgency_level || 'Normal';
+    form.privacy_level.value = p.privacy_level || 'public';
+    form.status.value = p.status || 'New';
+    form.assigned_to.value = p.assigned_to || '';
+    form.notes.value = p.notes || '';
+  } else {
+    form.urgency_level.value = 'Normal';
+    form.privacy_level.value = 'public';
+    form.status.value = 'New';
+  }
+  openModal('prayer-modal');
+}
+
+document.getElementById('prayer-save-btn').addEventListener('click', () => {
+  const form = document.getElementById('prayer-form');
+  const data = {
+    name: form.name.value.trim(),
+    phone: form.phone.value.trim(),
+    email: form.email.value.trim(),
+    request_text: form.request_text.value.trim(),
+    urgency_level: form.urgency_level.value,
+    privacy_level: form.privacy_level.value,
+    status: form.status.value,
+    assigned_to: form.assigned_to.value,
+    notes: form.notes.value.trim(),
+  };
+  if (!data.request_text) { toast('Prayer request text required.', 'warning'); return; }
+  if (currentPrayerId) {
+    store_update('prayer_requests', currentPrayerId, data);
+    toast('Request updated.', 'success');
+  } else {
+    store_add('prayer_requests', data);
+    toast('Prayer request added.', 'success');
+  }
+  closeModal('prayer-modal');
+  renderPrayer();
+});
+
+if (window.location.hash === '#add') setTimeout(() => openPrayerModal(), 100);
+renderPrayer();
+
+  </script>
+</body>
+</html>

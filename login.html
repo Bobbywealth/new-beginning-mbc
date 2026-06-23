@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — New Beginning MBC Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="/assets/logo.jpg" alt="New Beginning MBC" />
+        <div>
+          <strong>NEW BEGINNING</strong>
+          <span>MISSIONARY BAPTIST CHURCH</span>
+        </div>
+      </div>
+
+      <h1>Welcome back</h1>
+      <p class="subtitle">Sign in to the internal church dashboard.</p>
+
+      <form id="login-form" autocomplete="on" novalidate>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" required autocomplete="username" placeholder="you@newbeginningmbc.org" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••" />
+        </div>
+
+        <div class="login-row">
+          <label class="checkbox-row">
+            <input type="checkbox" id="remember" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" id="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-black btn-lg" style="width:100%">Sign In →</button>
+      </form>
+
+      <div class="login-demo">
+        <strong>⚠ DEMO MODE — Frontend only</strong>
+        This is the dashboard shell. Login is verified client-side for demo purposes. The real backend (Supabase + Twilio) will replace this in v2. Use one of the accounts below to explore:
+        <div style="margin-top:8px;line-height:1.7">
+          <code>admin@newbeginningmbc.org</code> / <code>admin123</code> &nbsp;<em>(Admin)</em><br>
+          <code>pastor@newbeginningmbc.org</code> / <code>pastor123</code> &nbsp;<em>(Pastor)</em><br>
+          <code>staff@newbeginningmbc.org</code> / <code>staff123</code> &nbsp;<em>(Staff)</em>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        Need access? Contact <a href="mailto:admin@newbeginningmbc.org" style="color:var(--blue-deep);font-weight:700">admin@newbeginningmbc.org</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot password modal -->
+  <div class="modal-backdrop" id="forgot-modal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <h2>Reset password</h2>
+        <button class="modal-close" onclick="closeModal('forgot-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom:16px;color:var(--gray)">Enter your email and we'll send you a reset link. (In demo mode, this just shows a confirmation.)</p>
+        <div class="field">
+          <label for="forgot-email">Email address</label>
+          <input type="email" id="forgot-email" placeholder="you@newbeginningmbc.org" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('forgot-modal')">Cancel</button>
+        <button class="btn btn-black" id="forgot-submit">Send reset link</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/dashboard/dashboard.js"></script>
+  <script>
+    // If already signed in, skip to dashboard
+    const existing = getSession();
+    if (existing) {
+      window.location.href = '/dashboard/index.html';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+      const result = login(email, password, remember);
+      if (result.ok) {
+        toast('Welcome back, ' + result.session.name.split(' ')[0] + '!', 'success');
+        setTimeout(() => { window.location.href = '/dashboard/index.html'; }, 400);
+      } else {
+        toast(result.error, 'error');
+      }
+    });
+
+    document.getElementById('forgot-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('forgot-modal');
+    });
+
+    document.getElementById('forgot-submit').addEventListener('click', () => {
+      const email = document.getElementById('forgot-email').value;
+      if (!email) { toast('Enter your email address.', 'warning'); return; }
+      closeModal('forgot-modal');
+      toast('If ' + email + ' exists in our system, a reset link has been sent.', 'success');
+    });
+  </script>
+</body>
+</html>
