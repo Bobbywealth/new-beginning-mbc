@@ -62,37 +62,33 @@
       <article class="panel" style="padding: 50px;">
         <div class="section-kicker">Send Us A Message</div>
         <h3 style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 32px;">We'll Be In Touch</h3>
-        <form onsubmit="event.preventDefault(); document.getElementById('form-success').style.display=\'block\'; this.style.display=\'none\';">
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/contact.html?submitted=true#contact">
+          <input type="hidden" name="form-name" value="contact" />
+          <p style="display:none"><label>Don't fill: <input name="bot-field" /></label></p>
           <div class="form-name-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
             <div>
               <label style="display:block; font-size: 12px; letter-spacing: .14em; font-weight: 900; margin-bottom: 8px;">FIRST NAME *</label>
-              <input type="text" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
+              <input type="text" name="first_name" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
             </div>
             <div>
               <label style="display:block; font-size: 12px; letter-spacing: .14em; font-weight: 900; margin-bottom: 8px;">LAST NAME *</label>
-              <input type="text" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
+              <input type="text" name="last_name" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
             </div>
           </div>
           <div style="margin-bottom: 18px;">
             <label style="display:block; font-size: 12px; letter-spacing: .14em; font-weight: 900; margin-bottom: 8px;">EMAIL *</label>
-            <input type="email" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
+            <input type="email" name="email" required style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
           </div>
           <div style="margin-bottom: 18px;">
             <label style="display:block; font-size: 12px; letter-spacing: .14em; font-weight: 900; margin-bottom: 8px;">PHONE</label>
-            <input type="tel" style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
+            <input type="tel" name="phone" style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; background: white;">
           </div>
           <div style="margin-bottom: 24px;">
             <label style="display:block; font-size: 12px; letter-spacing: .14em; font-weight: 900; margin-bottom: 8px;">HOW CAN WE HELP? *</label>
-            <textarea required rows="5" style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; resize: vertical; background: white;"></textarea>
+            <textarea name="message" required rows="5" style="width: 100%; padding: 14px 16px; border: 1px solid rgba(0,0,0,.15); border-radius: 12px; font-family: inherit; font-size: 15px; resize: vertical; background: white;"></textarea>
           </div>
           <button type="submit" class="btn btn-black" style="width: 100%; border: none;">Send Message →</button>
         </form>
-        <div id="form-success" style="display:none; text-align: center; padding: 40px 0;">
-          <div style="font-size: 56px; margin-bottom: 16px;">✉️</div>
-          <h3 style="font-size: 28px; margin-bottom: 12px;">Thank You!</h3>
-          <p style="color: var(--gray);">We've received your message and will get back to you within 1 business day.</p>
-        </div>
-      </article>
 
       <div style="display: flex; flex-direction: column; gap: 18px;">
         <article class="panel yellow" style="padding: 36px;">
@@ -198,6 +194,24 @@
     </footer>
 </div>
 <script>
+  // Netlify Forms: show thank-you state after form submission (?submitted=true)
+  (function () {
+    if (window.location.search.indexOf('submitted=true') !== -1) {
+      var form = document.querySelector('form[name="contact"]');
+      if (form) {
+        form.outerHTML = '<div id="form-success" style="text-align: center; padding: 40px 0;">' +
+          '<div style="font-size: 56px; margin-bottom: 16px;">✉️</div>' +
+          '<h3 style="font-size: 28px; margin-bottom: 12px;">Thank You!</h3>' +
+          '<p style="color: var(--gray);">We\'ve received your message and will get back to you within 1 business day.</p>' +
+          '</div>';
+        setTimeout(function () {
+          var el = document.getElementById('form-success');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  })();
+
   // Read church info from dashboard Settings (localStorage) and reflect on page
   (function () {
     function sget(k, fallback) {
