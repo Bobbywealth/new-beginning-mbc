@@ -64,7 +64,7 @@
 <section class="welcome" id="latest" style="padding-top: 60px;">
   <div style="max-width: 1100px; margin: 0 auto;">
     <div class="section-kicker" style="text-align:center; margin-bottom: 24px;">Latest Message</div>
-    <article class="panel black" style="padding: 50px;">
+    <article class="panel black" style="padding: 50px;" id="latest-sermon">
       <div class="sermon-thumb" style="height: 480px; margin-bottom: 32px;">
         <div class="play" style="width: 110px; height: 110px; font-size: 36px;">▶</div>
       </div>
@@ -89,7 +89,7 @@
     <div class="eyebrow" style="margin-bottom: 18px;">Recent Archive</div>
     <h2 class="script-title" style="font-size: clamp(48px, 5vw, 88px);">More <span>Messages</span></h2>
   </div>
-  <div class="info-grid">
+  <div class="info-grid" id="sermons-archive">
     <article class="panel">
       <div class="sermon-thumb" style="height: 180px;">
         <div class="play" style="width: 56px; height: 56px; font-size: 20px;">▶</div>
@@ -194,6 +194,59 @@
     </footer>
 </div>
 <script>
+  // Render dashboard-managed sermons (overrides hardcoded fallback if any exist)
+  (function () {
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+    function fmtMonthDay(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
+    }
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('nbmc_data_sermons') || '[]'); } catch (e) {}
+    if (list.length === 0) return; // keep hardcoded fallback
+
+    const sorted = list.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const latest = sorted[0];
+    const archive = sorted.slice(1, 4);
+
+    // Latest sermon
+    if (latest) {
+      const ytHref = latest.youtube_link || '#';
+      const dateStr = fmtMonthDay(latest.date);
+      const speaker = esc(latest.speaker || 'Pastor Eric Readon');
+      const desc = esc(latest.description || '');
+      document.getElementById('latest-sermon').innerHTML = `
+        <div class="sermon-thumb" style="height: 480px; margin-bottom: 32px;">
+          <div class="play" style="width: 110px; height: 110px; font-size: 36px;">▶</div>
+        </div>
+        <h3 style="font-size: clamp(36px, 5vw, 60px); margin-bottom: 14px;">${esc(latest.title)}</h3>
+        <p style="color: var(--yellow); font-size: 14px; letter-spacing: .18em; font-weight: 800;">${speaker.toUpperCase()} • ${dateStr}${latest.scripture ? ' • ' + esc(latest.scripture).toUpperCase() : ''}</p>
+        ${desc ? `<p style="margin-top: 24px; font-size: 18px; color: rgba(255,255,255,.8);">${desc}</p><br>` : ''}
+        <div style="display:flex; gap: 14px; flex-wrap: wrap;">
+          <a class="btn btn-yellow" href="${esc(ytHref)}" target="_blank" rel="noopener">${latest.youtube_link ? 'Watch on YouTube →' : 'Listen →'}</a>
+          ${latest.audio_link ? `<a class="btn btn-outline" href="${esc(latest.audio_link)}" target="_blank" style="background: transparent; color: white; border-color: rgba(255,255,255,.3);">Download Audio</a>` : ''}
+        </div>`;
+    }
+
+    // Archive
+    if (archive.length > 0) {
+      document.getElementById('sermons-archive').innerHTML = archive.map(s => `
+        <article class="panel">
+          <div class="sermon-thumb" style="height: 180px;">
+            <div class="play" style="width: 56px; height: 56px; font-size: 20px;">▶</div>
+          </div>
+          <h3 style="font-size: 24px;">${esc(s.title)}</h3>
+          <p style="color: var(--gray); font-size: 13px;">${fmtMonthDay(s.date)}${s.series_name ? ' • ' + esc(s.series_name).toUpperCase() : ''}</p>
+          ${s.youtube_link ? `<a class="btn btn-outline" href="${esc(s.youtube_link)}" target="_blank" rel="noopener" style="margin-top: 12px;">Watch →</a>` : ''}
+        </article>`).join('');
+    }
+  })();
+
   // Highlight active nav link based on scroll position
   (function () {
     var sections = ['home', 'about', 'ministries', 'events', 'sermons', 'give', 'contact']

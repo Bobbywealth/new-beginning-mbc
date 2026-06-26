@@ -60,7 +60,8 @@
 <section class="welcome" style="padding-top: 80px; padding-bottom: 80px;">
   <div style="max-width: 920px; margin: 0 auto;">
     <h2 class="script-title" style="text-align:center; font-size: clamp(48px, 5vw, 88px); margin-bottom: 50px;">This <span>Month</span></h2>
-    <article class="panel" style="padding: 0;">
+    <article class="panel" style="padding: 0;" id="events-list">
+      <!-- Hardcoded fallback events (shown if dashboard has no public events yet) -->
       <div class="event-row" style="padding: 24px 30px;">
         <div class="date-badge"><span>JUN</span><strong>08</strong></div>
         <div>
@@ -204,6 +205,55 @@
     </footer>
 </div>
 <script>
+  // Render dashboard-managed public events (overrides hardcoded fallback if any exist)
+  (function () {
+    let list = [];
+    try { list = JSON.parse(localStorage.getItem('nbmc_data_events') || '[]'); } catch (e) {}
+    const publicEvents = list.filter(e => e.is_public && e.date);
+    if (publicEvents.length === 0) return; // keep hardcoded fallback
+
+    const today = new Date(new Date().toDateString());
+    const upcoming = publicEvents
+      .filter(e => new Date(e.date) >= today)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 12);
+
+    const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    function fmtTime12(t) {
+      if (!t) return '';
+      const [h, m] = t.split(':');
+      const hr = parseInt(h, 10);
+      const ampm = hr >= 12 ? 'PM' : 'AM';
+      const hr12 = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr;
+      return hr12 + ':' + m + ' ' + ampm;
+    }
+    function dayName(dateStr) {
+      const d = new Date(dateStr + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+
+    const host = document.getElementById('events-list');
+    host.innerHTML = upcoming.map((e, i) => {
+      const d = new Date(e.date + 'T12:00:00');
+      const month = MONTHS[d.getMonth()];
+      const day = String(d.getDate()).padStart(2, '0');
+      const colorClass = i % 2 === 1 ? ' blue' : '';
+      const timeBits = [];
+      if (e.start_time) timeBits.push(fmtTime12(e.start_time));
+      if (e.location) timeBits.push(e.location);
+      const dayStr = e.start_time ? dayName(e.date) : '';
+      return `
+        <div class="event-row" style="padding: 24px 30px;">
+          <div class="date-badge${colorClass}"><span>${month}</span><strong>${day}</strong></div>
+          <div>
+            <h4 style="font-size: 22px;">${e.title}</h4>
+            <p>${[dayStr, timeBits.join(' • ')].filter(Boolean).join('<br>')}${e.description ? '<br><span style="color: var(--gray); font-size: 13px;">' + e.description.slice(0, 100) + (e.description.length > 100 ? '…' : '') + '</span>' : ''}</p>
+          </div>
+          <strong style="font-size: 24px;">→</strong>
+        </div>`;
+    }).join('');
+  })();
+
   // Highlight active nav link based on scroll position
   (function () {
     var sections = ['home', 'about', 'ministries', 'events', 'sermons', 'give', 'contact']

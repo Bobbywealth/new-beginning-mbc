@@ -61,29 +61,112 @@
   <div style="max-width: 920px; margin: 0 auto;">
     <div style="text-align:center; margin-bottom: 50px;">
       <h2 class="script-title" style="font-size: clamp(48px, 5vw, 88px);">Choose Your <span>Gift</span></h2>
+      <p id="giving-intro-text" style="color: var(--gray); max-width: 620px; margin: 18px auto 0; font-size: 17px; display: none;"></p>
     </div>
+
+    <!-- Tithes / Offerings / Missions (in-person + online card) -->
     <div class="info-grid" style="grid-template-columns: 1fr 1fr 1fr;">
       <article class="panel" style="text-align: center; padding: 40px 24px;">
         <div style="font-size: 56px; margin-bottom: 16px;">🙏</div>
         <h3 style="font-size: 22px;">Tithes</h3>
         <p style="color: var(--gray);">Regular, faithful giving (10%)</p>
         <br>
-        <a class="btn btn-black" href="#" style="width: 100%;">Give Tithe →</a>
+        <a class="btn btn-black" href="#digital-wallets" style="width: 100%;">Give Tithe →</a>
       </article>
       <article class="panel yellow" style="text-align: center; padding: 40px 24px;">
         <div style="font-size: 56px; margin-bottom: 16px;">♡</div>
         <h3 style="font-size: 22px;">Offerings</h3>
         <p style="color: rgba(0,0,0,.7);">Above & beyond the tithe</p>
         <br>
-        <a class="btn btn-black" href="#" style="width: 100%;">Give Offering →</a>
+        <a class="btn btn-black" href="#digital-wallets" style="width: 100%;">Give Offering →</a>
       </article>
       <article class="panel black" style="text-align: center; padding: 40px 24px;">
         <div style="font-size: 56px; margin-bottom: 16px;">✦</div>
         <h3 style="font-size: 22px; color: white;">Missions</h3>
         <p style="color: rgba(255,255,255,.7);">Local & global outreach</p>
         <br>
-        <a class="btn btn-yellow" href="#" style="width: 100%;">Give to Missions →</a>
+        <a class="btn btn-yellow" href="#digital-wallets" style="width: 100%;">Give to Missions →</a>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- Digital Wallets: Zelle / Cash App / Apple Pay / Stripe (coming soon) -->
+<section class="welcome" id="digital-wallets" style="padding-top: 40px;">
+  <div style="max-width: 920px; margin: 0 auto;">
+    <div style="text-align:center; margin-bottom: 40px;">
+      <div class="eyebrow">Digital Wallets</div>
+      <h2 style="font-size: clamp(32px, 4vw, 48px); margin-top: 8px;">Give From Your Phone</h2>
+      <p style="color: var(--gray); max-width: 620px; margin: 12px auto 0;">Send your gift through your favorite app. Tap a card to copy the handle, or open the app directly.</p>
+    </div>
+
+    <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+      <!-- Zelle -->
+      <article class="panel" id="card-zelle" style="padding: 32px; display:none;">
+        <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 18px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: #6d1ed4; color: white; display:flex; align-items:center; justify-content:center; font-weight: 900; font-size: 24px; letter-spacing: -.02em;">Z</div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 2px;">Zelle</h3>
+            <p style="color: var(--gray); font-size: 13px;">Most US banks — no fees</p>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,.04); border-radius: 10px; padding: 14px 16px; display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 14px;">
+          <code id="zelle-handle" style="font-size: 16px; font-weight: 700; word-break: break-all;"></code>
+          <button class="btn btn-outline copy-btn" data-target="zelle-handle" style="padding: 8px 14px; font-size: 12px; flex-shrink:0;">Copy</button>
+        </div>
+        <a class="btn btn-black" id="zelle-link" href="#" target="_blank" style="width:100%;">Open Zelle →</a>
+      </article>
+
+      <!-- Cash App -->
+      <article class="panel yellow" id="card-cashapp" style="padding: 32px; display:none;">
+        <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 18px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: #00d632; color: white; display:flex; align-items:center; justify-content:center; font-weight: 900; font-size: 28px;">$</div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 2px;">Cash App</h3>
+            <p style="color: rgba(0,0,0,.7); font-size: 13px;">Send instantly from the app</p>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,.06); border-radius: 10px; padding: 14px 16px; display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 14px;">
+          <code id="cashapp-handle" style="font-size: 16px; font-weight: 700;"></code>
+          <button class="btn btn-outline copy-btn" data-target="cashapp-handle" style="padding: 8px 14px; font-size: 12px; flex-shrink:0;">Copy</button>
+        </div>
+        <a class="btn btn-black" id="cashapp-link" href="#" target="_blank" style="width:100%;">Open Cash App →</a>
+      </article>
+
+      <!-- Apple Pay -->
+      <article class="panel" id="card-applepay" style="padding: 32px; display:none;">
+        <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 18px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: #000; color: white; display:flex; align-items:center; justify-content:center; font-size: 28px;">🍎</div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 2px;">Apple Pay</h3>
+            <p style="color: var(--gray); font-size: 13px;">Send via Apple Cash or Messages</p>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,.04); border-radius: 10px; padding: 14px 16px; display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-bottom: 14px;">
+          <code id="applepay-handle" style="font-size: 16px; font-weight: 700; word-break: break-all;"></code>
+          <button class="btn btn-outline copy-btn" data-target="applepay-handle" style="padding: 8px 14px; font-size: 12px; flex-shrink:0;">Copy</button>
+        </div>
+        <a class="btn btn-black" id="applepay-link" href="#" target="_blank" style="width:100%;">Send via Apple Pay →</a>
+      </article>
+
+      <!-- Stripe (coming soon) -->
+      <article class="panel" style="padding: 32px; opacity: .55;">
+        <div style="display:flex; align-items:center; gap: 16px; margin-bottom: 18px;">
+          <div style="width: 56px; height: 56px; border-radius: 14px; background: #635bff; color: white; display:flex; align-items:center; justify-content:center; font-weight: 900; font-size: 22px;">S</div>
+          <div>
+            <h3 style="font-size: 22px; margin-bottom: 2px;">Credit / Debit Card</h3>
+            <p style="color: var(--gray); font-size: 13px;">Online card giving</p>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,.04); border-radius: 10px; padding: 14px 16px; text-align:center; color: var(--gray); font-style: italic;">
+          Coming soon
+        </div>
+        <button class="btn btn-outline" disabled style="width:100%; margin-top: 14px; opacity: .6; cursor: not-allowed;">Give by Card (coming soon)</button>
+      </article>
+    </div>
+
+    <div id="no-wallets-warning" style="display:none; text-align:center; padding: 30px; background: rgba(0,0,0,.04); border-radius: 12px; color: var(--gray); font-size: 15px;">
+      💡 Digital wallets aren't configured yet. Please use the other giving options below or contact the church office.
     </div>
   </div>
 </section>
@@ -203,6 +286,89 @@
     </footer>
 </div>
 <script>
+  // Read giving settings from localStorage (saved via Settings → Giving tab)
+  (function () {
+    function sget(k) {
+      try {
+        const list = JSON.parse(localStorage.getItem('nbmc_data_settings') || '[]');
+        const row = list.find(x => x.key === k);
+        return row ? row.value : '';
+      } catch (e) { return ''; }
+    }
+
+    const zelle = (sget('giving_zelle') || '').trim();
+    const cashapp = (sget('giving_cashapp') || '').trim();
+    const applepay = (sget('giving_applepay') || '').trim();
+    const intro = (sget('giving_intro') || '').trim();
+
+    if (intro) {
+      const el = document.getElementById('giving-intro-text');
+      el.textContent = intro;
+      el.style.display = '';
+    }
+
+    let visibleCount = 0;
+
+    if (zelle) {
+      document.getElementById('card-zelle').style.display = '';
+      document.getElementById('zelle-handle').textContent = zelle;
+      const link = document.getElementById('zelle-link');
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(zelle);
+      link.href = isEmail
+        ? 'https://enroll.zellepay.com/?email=' + encodeURIComponent(zelle)
+        : 'https://enroll.zellepay.com/?phone=' + encodeURIComponent(zelle.replace(/[^\d+]/g, ''));
+      visibleCount++;
+    }
+    if (cashapp) {
+      document.getElementById('card-cashapp').style.display = '';
+      const tag = cashapp.startsWith('$') ? cashapp : '$' + cashapp;
+      document.getElementById('cashapp-handle').textContent = tag;
+      document.getElementById('cashapp-link').href = 'https://cash.app/' + tag.replace('$', '');
+      visibleCount++;
+    }
+    if (applepay) {
+      document.getElementById('card-applepay').style.display = '';
+      document.getElementById('applepay-handle').textContent = applepay;
+      const link = document.getElementById('applepay-link');
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(applepay);
+      if (isEmail) {
+        link.href = 'mailto:' + applepay + '?subject=Apple%20Cash%20Gift';
+      } else {
+        // SMS/Messages deeplink works on iOS
+        const phone = applepay.replace(/[^\d+]/g, '');
+        link.href = 'sms:' + phone + '&body=Apple%20Cash%20gift%20to%20New%20Beginning%20MBC';
+      }
+      visibleCount++;
+    }
+
+    if (visibleCount === 0) {
+      document.getElementById('no-wallets-warning').style.display = '';
+    }
+
+    // Copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        const text = target.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            const old = btn.textContent;
+            btn.textContent = '✓ Copied';
+            setTimeout(() => { btn.textContent = old; }, 1400);
+          });
+        } else {
+          // Fallback for old browsers
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); btn.textContent = '✓ Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 1400); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      });
+    });
+  })();
+
   // Highlight active nav link based on scroll position
   (function () {
     var sections = ['home', 'about', 'ministries', 'events', 'sermons', 'give', 'contact']

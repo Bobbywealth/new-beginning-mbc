@@ -41,6 +41,7 @@
   <button class="tab" data-tab="website">Website</button>
   <button class="tab" data-tab="sms">SMS</button>
   <button class="tab" data-tab="roles">Roles</button>
+  <button class="tab" data-tab="giving">Giving</button>
   <button class="tab" data-tab="storage">Storage</button>
 </div>
 
@@ -83,7 +84,8 @@
     <div class="field" style="margin-bottom:14px"><label>Twilio Phone Number</label><input type="tel" id="tw-phone" placeholder="+15551234567" /></div>
     <div class="field" style="margin-bottom:14px"><label>Default Opt-In Language</label><textarea id="tw-optin" rows="3"></textarea></div>
     <div class="field" style="margin-bottom:14px"><label>Default Unsubscribe Language</label><textarea id="tw-unsub" rows="2"></textarea></div>
-    <div class="save-row"><button class="btn btn-outline" onclick="toast('Connection test will run once backend is wired (v2).', 'warning')">Test Connection</button><button class="btn btn-black" id="save-sms-btn">Save SMS Settings</button></div>
+    <div class="save-row"><button class="btn btn-outline" id="test-twilio-btn">Test Connection</button><button class="btn btn-black" id="save-sms-btn">Save SMS Settings</button></div>
+    <div id="test-result" style="margin-top:14px;font-size:13px"></div>
   </div>
 </div>
 
@@ -100,6 +102,19 @@
       </tbody>
     </table>
     <p style="margin-top:18px;font-size:13px;color:var(--gray)">Edit individual user permissions on the <a href="/dashboard/staff.html" style="color:var(--blue-deep);font-weight:700">Staff Users</a> page.</p>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-giving">
+  <div class="card card-lg" style="max-width:760px">
+    <h3 style="margin-bottom:6px">Digital Giving</h3>
+    <p style="color:var(--gray);font-size:14px;margin-bottom:24px">Set the church's Zelle / Cash App / Apple Pay handles. These show on <code>/give.html</code> for the congregation.</p>
+    <div class="field" style="margin-bottom:14px"><label>Zelle (email or phone)</label><input type="text" id="giving-zelle" placeholder="hello@newbeginningmbc.org or +13055551234" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Cash App ($cashtag)</label><input type="text" id="giving-cashapp" placeholder="$newbeginningmbc" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Apple Pay (email or phone)</label><input type="text" id="giving-applepay" placeholder="hello@newbeginningmbc.org or +13055551234" /></div>
+    <div class="field" style="margin-bottom:14px"><label>Stripe Public Key (coming soon)</label><input type="text" id="giving-stripe" placeholder="pk_live_..." disabled /></div>
+    <div class="field" style="margin-bottom:14px"><label>Giving Page Intro (optional)</label><textarea id="giving-intro" rows="2" placeholder="Your generosity fuels everything we do…"></textarea></div>
+    <div class="save-row"><button class="btn btn-black" id="save-giving-btn">Save Giving Settings</button></div>
   </div>
 </div>
 
@@ -157,6 +172,11 @@ document.getElementById('tw-phone').value = setting_get('twilio_phone') || '';
 document.getElementById('tw-optin').value = setting_get('optin_language') || 'I agree to receive text messages from New Beginning Missionary Baptist Church. Message & data rates may apply. Reply STOP to unsubscribe.';
 document.getElementById('tw-unsub').value = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe. For help, reply HELP.';
 
+document.getElementById('giving-zelle').value = setting_get('giving_zelle') || '';
+document.getElementById('giving-cashapp').value = setting_get('giving_cashapp') || '';
+document.getElementById('giving-applepay').value = setting_get('giving_applepay') || '';
+document.getElementById('giving-intro').value = setting_get('giving_intro') || '';
+
 function saveGroup(fieldIds, keys) {
   const session = getSession();
   fieldIds.forEach((id, i) => {
@@ -180,6 +200,33 @@ document.getElementById('save-sms-btn').addEventListener('click', () => saveGrou
   ['tw-sid', 'tw-token', 'tw-phone', 'tw-optin', 'tw-unsub'],
   ['twilio_sid', 'twilio_token', 'twilio_phone', 'optin_language', 'unsubscribe_language']
 ));
+
+document.getElementById('save-giving-btn').addEventListener('click', () => saveGroup(
+  ['giving-zelle', 'giving-cashapp', 'giving-applepay', 'giving-intro'],
+  ['giving_zelle', 'giving_cashapp', 'giving_applepay', 'giving_intro']
+));
+
+// Test Twilio Connection (demo-mode diagnostics — no live API call)
+document.getElementById('test-twilio-btn').addEventListener('click', () => {
+  const sid = document.getElementById('tw-sid').value.trim();
+  const token = document.getElementById('tw-token').value.trim();
+  const phone = document.getElementById('tw-phone').value.trim();
+  const out = document.getElementById('test-result');
+  const issues = [];
+  if (!sid) issues.push('• Account SID is empty');
+  else if (!/^AC[a-f0-9]{32}$/.test(sid)) issues.push('• Account SID should start with <code>AC</code> followed by 32 hex chars');
+  if (!token) issues.push('• Auth Token is empty');
+  else if (token.length < 32) issues.push('• Auth Token looks too short (Twilio tokens are 32+ chars)');
+  if (!phone) issues.push('• Twilio phone number is empty');
+  else if (!/^\+\d{10,15}$/.test(phone)) issues.push('• Phone must be E.164 format: <code>+1</code> followed by 10 digits');
+  if (issues.length === 0) {
+    out.innerHTML = '<div style="padding:14px 16px;background:#e8f7ee;border:1px solid #2a8540;border-radius:8px;color:#1d6b35"><strong>✓ Looks good.</strong> SID / token / phone pass format checks. (Demo mode — no live Twilio API call. Wire backend to actually verify credentials.)</div>';
+    toast('Twilio credentials look valid.', 'success');
+  } else {
+    out.innerHTML = '<div style="padding:14px 16px;background:#fdecea;border:1px solid #b3261e;border-radius:8px;color:#7a1d17"><strong>✗ ' + issues.length + ' issue' + (issues.length === 1 ? '' : 's') + ' found:</strong><br>' + issues.join('<br>') + '</div>';
+    toast(issues.length + ' validation issue' + (issues.length === 1 ? '' : 's'), 'error');
+  }
+});
 
   </script>
 </body>

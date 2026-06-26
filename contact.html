@@ -198,6 +198,101 @@
     </footer>
 </div>
 <script>
+  // Read church info from dashboard Settings (localStorage) and reflect on page
+  (function () {
+    function sget(k, fallback) {
+      try {
+        const list = JSON.parse(localStorage.getItem('nbmc_data_settings') || '[]');
+        const row = list.find(x => x.key === k);
+        return row && row.value ? row.value : fallback;
+      } catch (e) { return fallback; }
+    }
+
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : String(s);
+      return d.innerHTML;
+    }
+
+    const phone = sget('phone', '(555) 123-4567');
+    const email = sget('email', 'hello@newbeginningmbc.org');
+    const addr1 = sget('address', '2801 NW 170th Street');
+    const addr2 = 'Miami Gardens, FL 33056';
+    const instagram = sget('instagram', '#');
+    const facebook = sget('facebook', '#');
+    const youtube = sget('youtube', '#');
+
+    // Build tel: link from digits-only
+    const phoneDigits = phone.replace(/[^\d+]/g, '');
+
+    // Update phone in contact card
+    const phoneLink = document.querySelector('a[href^="tel:"]');
+    if (phoneLink) {
+      phoneLink.textContent = phone;
+      phoneLink.href = 'tel:' + phoneDigits;
+    }
+
+    // Update address in Visit Us card
+    const visitCard = document.querySelector('.panel.yellow p');
+    if (visitCard && visitCard.textContent.includes('2801 NW')) {
+      visitCard.innerHTML = esc(addr1) + '<br>' + esc(addr2);
+    }
+
+    // Update email link
+    const emailLink = document.querySelector('a[href^="mailto:"]');
+    if (emailLink) {
+      emailLink.textContent = email;
+      emailLink.href = 'mailto:' + email;
+    }
+
+    // Update social links in Follow Us card
+    const followCard = Array.from(document.querySelectorAll('.panel .section-kicker')).find(el => el.textContent.trim() === 'Follow Us');
+    if (followCard) {
+      const socialsP = followCard.nextElementSibling;
+      if (socialsP) {
+        socialsP.innerHTML = '<a href="' + esc(instagram) + '" target="_blank" rel="noopener">Instagram</a> · <a href="' + esc(facebook) + '" target="_blank" rel="noopener">Facebook</a> · <a href="' + esc(youtube) + '" target="_blank" rel="noopener">YouTube</a>';
+      }
+    }
+
+    // Update footer (Contact column + Service Times)
+    const footerLists = document.querySelectorAll('footer .footer-grid ul');
+    footerLists.forEach(ul => {
+      ul.querySelectorAll('li').forEach(li => {
+        const t = li.textContent.trim();
+        if (t === '(555) 123-4567') li.textContent = phone;
+        if (t === 'hello@newbeginningmbc.org') li.textContent = email;
+        if (t === '2801 NW 170th Street') li.textContent = addr1;
+        if (t === 'Miami Gardens, FL 33056') li.textContent = addr2;
+      });
+    });
+
+    // Update service times (if church_services setting exists)
+    const services = sget('service_times', '');
+    if (services) {
+      // Footer service times block
+      const footerSvcLists = document.querySelectorAll('footer .footer-grid ul');
+      const svcUl = Array.from(footerSvcLists).find(ul =>
+        Array.from(ul.querySelectorAll('li')).some(li => li.textContent.includes('Sunday Worship'))
+      );
+      if (svcUl) {
+        svcUl.innerHTML = services.split('\n').filter(Boolean).map(line => {
+          const m = line.match(/^(.+?)\s*[—–-]\s*(.+)$/);
+          if (m) return '<li>' + esc(m[1].trim()) + ' — ' + esc(m[2].trim()) + '</li>';
+          return '<li>' + esc(line.trim()) + '</li>';
+        }).join('');
+      }
+      // Black service-times card
+      const blackCard = Array.from(document.querySelectorAll('.panel.black p')).find(p => p.textContent.includes('Sunday Worship'));
+      if (blackCard) {
+        blackCard.innerHTML = services.split('\n').filter(Boolean).map(line => {
+          const m = line.match(/^(.+?)\s*[—–-]\s*(.+)$/);
+          if (m) return '<strong style="color: white;">' + esc(m[1].trim()) + '</strong> — ' + esc(m[2].trim()) + '<br>';
+          return esc(line.trim()) + '<br>';
+        }).join('');
+      }
+    }
+  })();
+
   // Highlight active nav link based on scroll position
   (function () {
     var sections = ['home', 'about', 'ministries', 'events', 'sermons', 'give', 'contact']
