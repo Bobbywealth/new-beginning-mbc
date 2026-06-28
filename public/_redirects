@@ -1,5 +1,15 @@
 # Force HTTPS
 http://* https://:splat 301!
 
+# Clean URL rewrites (Render doesn't auto-strip .html like Netlify does)
+/about       /about.html       200
+/ministries  /ministries.html  200
+/events      /events.html      200
+/sermons     /sermons.html     200
+/give        /give.html        200
+/live        /live.html        200
+/contact     /contact.html     200
+/login       /login.html       200
+
 # 404 fallback to home
 /*    /index.html   404
