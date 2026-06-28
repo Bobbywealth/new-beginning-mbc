@@ -2,7 +2,7 @@ services:
   - type: static_site
     name: new-beginning-mbc
     autoDeploy: true
-    staticPublishPath: .
+    staticPublishPath: public
     buildCommand: ""
     headers:
       - path: /*
