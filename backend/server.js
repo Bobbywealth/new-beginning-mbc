@@ -131,7 +131,28 @@ CREATE TABLE IF NOT EXISTS message_history (
   sent_at TIMESTAMPTZ,
   sent_by TEXT,
   status TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
+  full_body TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Defensive ALTERs: the message_history table was originally shipped
+-- without updated_at + full_body, but the generic CRUD factory always
+-- writes updated_at and the dashboard always sends full_body. Adding the
+-- columns here is idempotent so a redeploy on the old schema heals it.
+ALTER TABLE message_history ADD COLUMN IF NOT EXISTS full_body TEXT;
+ALTER TABLE message_history ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  requested_at TIMESTAMPTZ DEFAULT now(),
+  status TEXT DEFAULT 'pending',
+  resolved_at TIMESTAMPTZ,
+  resolved_by TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -283,6 +304,72 @@ app.get('/api/health/db', async (_req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Public write endpoints (no auth). These are the form-submission endpoints
+// the public site hits directly. They're mounted BEFORE the auth gate so
+// visitors can submit without holding the admin token. Input is tightly
+// constrained — only the fields the public form should ever set.
+// ---------------------------------------------------------------------------
+
+// Validate + insert an SMS opt-in from the public website form
+app.post('/api/public/sms-signup', async (req, res) => {
+  try {
+    const { first_name = '', last_name = '', phone = '', email = '', consent = '' } = req.body || {};
+    if (!phone || !consent) return res.status(400).json({ error: 'phone and consent are required' });
+    if (!/^[+()\d\-\s]{7,}$/.test(phone)) return res.status(400).json({ error: 'invalid phone' });
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'invalid email' });
+    }
+    const id = genId();
+    const r = await pool.query(
+      `INSERT INTO sms_signups
+         (id, first_name, last_name, phone, email, opt_in_status, opt_in_date,
+          opt_in_source, consent_text, tags, member_status, notes, updated_at)
+       VALUES ($1,$2,$3,$4,$5,'Opted In', now(),
+          'Website Form', $6, '[]'::jsonb, 'Guest', 'Submitted via public website form.', now())
+       RETURNING id, first_name, last_name, phone, email, opt_in_status, opt_in_date`,
+      [id, first_name.trim().slice(0, 100), last_name.trim().slice(0, 100), phone.trim(), email.trim(), String(consent).slice(0, 1000)]
+    );
+    res.status(201).json({ ok: true, signup: r.rows[0] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Validate + insert a password-reset request from the public login page
+app.post('/api/public/password-reset-request', async (req, res) => {
+  try {
+    const { email = '' } = req.body || {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'invalid email' });
+    }
+    const id = genId();
+    await pool.query(
+      `INSERT INTO password_resets (id, email, requested_at, status, updated_at)
+       VALUES ($1, $2, now(), 'pending', now())`,
+      [id, email.toLowerCase().trim()]
+    );
+    // Always return 200 — don't leak whether the email exists.
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---------------------------------------------------------------------------
+// Auth: shared-secret admin token. Reads are open so the public site can
+// render events/sermons/settings; writes (POST/PUT/DELETE) require the token.
+// Token is sent as `X-Admin-Token` from the dashboard. If ADMIN_TOKEN env
+// is not set, the API stays open (dev mode) — no behavior change.
+// ---------------------------------------------------------------------------
+function requireAdmin(req, res, next) {
+  const expected = process.env.ADMIN_TOKEN;
+  if (!expected) return next(); // dev: open
+  const got = req.headers['x-admin-token'];
+  if (got !== expected) return res.status(401).json({ error: 'unauthorized' });
+  next();
+}
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  return requireAdmin(req, res, next);
+});
+
+// ---------------------------------------------------------------------------
 // CRUD routes (mirror dashboard localStorage keys)
 // ---------------------------------------------------------------------------
 
@@ -294,6 +381,7 @@ app.use('/api/prayer-requests',  makeCrud('prayer_requests',  []));
 app.use('/api/templates',        makeCrud('templates',        []));
 app.use('/api/message-history',  makeCrud('message_history',  []));
 app.use('/api/staff',            makeCrud('staff',            ['perms']));
+app.use('/api/password-resets',  makeCrud('password_resets',  []));
 
 // Settings is a key/value store (different shape)
 app.get('/api/settings', async (_req, res) => {
@@ -316,6 +404,14 @@ app.put('/api/settings/:key', async (req, res) => {
        RETURNING *`,
       [genId(), req.params.key, value ?? '', updated_by ?? 'system']
     );
+    res.json(r.rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/settings/:key', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM settings WHERE key = $1', [req.params.key]);
+    if (!r.rows[0]) return res.status(404).json({ error: 'not found', key: req.params.key });
     res.json(r.rows[0]);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -349,6 +445,9 @@ app.use((req, res) => {
 });
 
 app.use((err, _req, res, _next) => {
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'invalid JSON body' });
+  }
   console.error('[unhandled]', err);
   res.status(500).json({ error: err.message || 'internal error' });
 });

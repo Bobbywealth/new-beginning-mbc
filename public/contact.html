@@ -193,6 +193,7 @@
       </div>
     </footer>
 </div>
+<script src="/api.js"></script>
 <script>
   // Netlify Forms: show thank-you state after form submission (?submitted=true)
   (function () {
@@ -212,14 +213,11 @@
     }
   })();
 
-  // Read church info from dashboard Settings (localStorage) and reflect on page
+  // Read church info from the API settings and reflect on page
   (function () {
+    nbmcGetSettings().then(settings => {
     function sget(k, fallback) {
-      try {
-        const list = JSON.parse(localStorage.getItem('nbmc_data_settings') || '[]');
-        const row = list.find(x => x.key === k);
-        return row && row.value ? row.value : fallback;
-      } catch (e) { return fallback; }
+      return nbmcGetSetting(settings, k, fallback);
     }
 
     function esc(s) {
@@ -305,6 +303,7 @@
         }).join('');
       }
     }
+    });
   })();
 
   // Highlight active nav link based on scroll position

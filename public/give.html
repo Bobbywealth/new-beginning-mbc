@@ -285,16 +285,12 @@
       </div>
     </footer>
 </div>
+<script src="/api.js"></script>
 <script>
-  // Read giving settings from localStorage (saved via Settings → Giving tab)
+  // Read giving settings from the API (saved via Settings → Giving tab)
   (function () {
-    function sget(k) {
-      try {
-        const list = JSON.parse(localStorage.getItem('nbmc_data_settings') || '[]');
-        const row = list.find(x => x.key === k);
-        return row ? row.value : '';
-      } catch (e) { return ''; }
-    }
+    nbmcGetSettings().then(settings => {
+    function sget(k) { return nbmcGetSetting(settings, k, ''); }
 
     const zelle = (sget('giving_zelle') || '').trim();
     const cashapp = (sget('giving_cashapp') || '').trim();
@@ -366,6 +362,7 @@
           document.body.removeChild(ta);
         }
       });
+    });
     });
   })();
 

@@ -82,6 +82,7 @@
   </div>
 
   <script src="/dashboard/dashboard.js"></script>
+  <script src="/api.js"></script>
   <script>
     // If already signed in, skip to dashboard
     const existing = getSession();
@@ -108,20 +109,18 @@
       openModal('forgot-modal');
     });
 
-    document.getElementById('forgot-submit').addEventListener('click', () => {
+    document.getElementById('forgot-submit').addEventListener('click', async () => {
       const email = document.getElementById('forgot-email').value.trim();
       if (!email) { toast('Enter your email address.', 'warning'); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('That doesn\'t look like a valid email.', 'warning'); return; }
 
-      // Save the request to a localStorage queue (admin sees it on Staff Users page)
-      const queue = JSON.parse(localStorage.getItem('nbmc_data_password_resets') || '[]');
-      queue.unshift({
-        id: 'r' + Date.now().toString(36),
-        email: email.toLowerCase(),
-        requested_at: new Date().toISOString(),
-        status: 'pending'
-      });
-      localStorage.setItem('nbmc_data_password_resets', JSON.stringify(queue));
+      // POST to the public password-reset endpoint so the admin sees it
+      // on the Staff Users page. Don't reveal whether the email exists.
+      try {
+        await nbmcRequestPasswordReset(email.toLowerCase());
+      } catch (err) {
+        console.warn('[forgot-password] submit failed:', err.message);
+      }
 
       closeModal('forgot-modal');
       document.getElementById('forgot-email').value = '';
