@@ -1,3 +1,12 @@
+databases:
+  - name: new-beginning-mbc-db
+    plan: basic_256mb
+    region: oregon
+    databaseName: new_beginning_mbc_db
+    user: new_beginning_mbc_db_user
+    postgresMajorVersion: "16"
+    ipAllowList: []  # Locked down; church admin IPs to be added later
+
 services:
   - type: static_site
     name: new-beginning-mbc
