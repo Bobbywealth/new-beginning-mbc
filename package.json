@@ -2,9 +2,14 @@
   "name": "new-beginning-mbc",
   "version": "1.0.0",
   "private": true,
-  "description": "Root shim — re-exports backend/server.js for Render's startCommand",
+  "description": "Root shim for the church site. Has both: (1) the API deps so Render's npm install at repo root picks them up, and (2) a server.js that re-exports ./backend/server.js for the new-beginning-mbc-api Render service.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
   }
 }
