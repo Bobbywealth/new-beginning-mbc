@@ -1,0 +1,18 @@
+{
+  "name": "new-beginning-mbc-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend API for New Beginning Missionary Baptist Church dashboard",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.11.5"
+  }
+}
