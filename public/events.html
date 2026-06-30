@@ -204,11 +204,11 @@
       </div>
     </footer>
 </div>
+<script src="/api.js"></script>
 <script>
   // Render dashboard-managed public events (overrides hardcoded fallback if any exist)
   (function () {
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem('nbmc_data_events') || '[]'); } catch (e) {}
+    nbmcGetEvents().then(list => {
     const publicEvents = list.filter(e => e.is_public && e.date);
     if (publicEvents.length === 0) return; // keep hardcoded fallback
 
@@ -252,6 +252,7 @@
           <strong style="font-size: 24px;">→</strong>
         </div>`;
     }).join('');
+    });
   })();
 
   // Highlight active nav link based on scroll position

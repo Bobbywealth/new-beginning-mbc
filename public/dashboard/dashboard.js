@@ -82,6 +82,10 @@ function isRole(...roles) {
 /* store_add() / store_update() / store_delete() are async (call API + cache).*/
 
 const API_BASE = 'https://new-beginning-mbc-api.onrender.com';
+// Shared secret the API requires for write operations. Mirrors the
+// ADMIN_TOKEN env var on the new-beginning-mbc-api service. Reads are
+// open, so the public site doesn't need this.
+const NBMC_ADMIN_TOKEN = 'nbmc-adm-7b8ffe32494939ddcc035e534eb04618a747';
 const _cache = new Map();
 
 // Map localStorage-style keys to API endpoints
@@ -94,15 +98,17 @@ const KEY_TO_ENDPOINT = {
   templates:       '/api/templates',
   message_history: '/api/message-history',
   staff:           '/api/staff',
+  password_resets: '/api/password-resets',
   // 'settings' is handled separately below (per-key PUT)
-  // 'password_resets' is purely local cache (no backend table yet)
 };
 
 async function _api(method, path, body) {
-  const opts = {
-    method,
-    headers: body !== undefined ? { 'Content-Type': 'application/json' } : {},
-  };
+  const headers = { Accept: 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  // Token is required for writes (POST/PUT/DELETE). The API returns 401
+  // if the token is wrong, so the catch surfaces a useful error.
+  if (method !== 'GET' && method !== 'HEAD') headers['X-Admin-Token'] = NBMC_ADMIN_TOKEN;
+  const opts = { method, headers };
   if (body !== undefined) opts.body = JSON.stringify(body);
   const res = await fetch(API_BASE + path, opts);
   if (!res.ok) {
@@ -134,7 +140,7 @@ async function hydrateStores() {
     console.warn('[hydrate] settings:', e.message);
     _cache.set('settings', _cache.get('settings') || []);
   }
-  // password_resets stays purely local — no backend table yet
+  // password_resets is now an API-backed resource too
   if (!_cache.has('password_resets')) _cache.set('password_resets', []);
 
   console.log('[hydrate] stores ready:', Object.fromEntries(
@@ -166,14 +172,8 @@ async function store_add(key, item) {
     _cache.set(key, list);
     return created;
   }
-  // Local-only fallback (e.g. password_resets)
-  const list = store_list(key);
-  item.id = item.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
-  item.created_at = item.created_at || new Date().toISOString();
-  item.updated_at = new Date().toISOString();
-  list.unshift(item);
-  _cache.set(key, list);
-  return item;
+  // No local-only fallback: every key is API-backed now.
+  throw new Error(`store_add: no endpoint for "${key}"`);
 }
 
 async function store_update(key, id, patch) {
@@ -186,13 +186,7 @@ async function store_update(key, id, patch) {
     _cache.set(key, list);
     return updated;
   }
-  // Local-only fallback
-  const list = store_list(key);
-  const i = list.findIndex(x => x.id === id);
-  if (i === -1) return null;
-  list[i] = { ...list[i], ...patch, updated_at: new Date().toISOString() };
-  _cache.set(key, list);
-  return list[i];
+  throw new Error(`store_update: no endpoint for "${key}"`);
 }
 
 async function store_delete(key, id) {

@@ -227,23 +227,30 @@ function renderResets() {
 }
 
 function resolveReset(id, email) {
-  const list = store_list('password_resets');
-  const i = list.findIndex(x => x.id === id);
-  if (i === -1) return;
-  list[i].status = 'resolved';
-  list[i].resolved_at = new Date().toISOString();
-  store_set('password_resets', list);
-  window.location.href = 'mailto:' + email + '?subject=Password%20Reset%20-%20New%20Beginning%20MBC%20Dashboard&body=Hi%2C%20you%20(or%20someone%20using%20this%20email)%20requested%20a%20password%20reset%20for%20the%20church%20dashboard.%20Please%20reply%20with%20a%20new%20password%20and%20we%27ll%20update%20it%20within%2024%20hours.';
-  renderResets();
-  toast('Opening email…', 'success');
+  (async () => {
+    try {
+      await store_update('password_resets', id, {
+        status: 'resolved',
+        resolved_at: new Date().toISOString(),
+        resolved_by: (getSession() || {}).email || 'admin',
+      });
+      window.location.href = 'mailto:' + email + '?subject=Password%20Reset%20-%20New%20Beginning%20MBC%20Dashboard&body=Hi%2C%20you%20(or%20someone%20using%20this%20email)%20requested%20a%20password%20reset%20for%20the%20church%20dashboard.%20Please%20reply%20with%20a%20new%20password%20and%20we%27ll%20update%20it%20within%2024%20hours.';
+      renderResets();
+      toast('Opening email…', 'success');
+    } catch (e) {
+      toast('Resolve failed: ' + e.message, 'error');
+    }
+  })();
 }
 
-function dismissReset(id) {
-  const list = store_list('password_resets');
-  const next = list.filter(x => x.id !== id);
-  store_set('password_resets', next);
-  renderResets();
-  toast('Dismissed.', 'success');
+async function dismissReset(id) {
+  try {
+    await store_delete('password_resets', id);
+    renderResets();
+    toast('Dismissed.', 'success');
+  } catch (e) {
+    toast('Dismiss failed: ' + e.message, 'error');
+  }
 }
 
 renderStaff();

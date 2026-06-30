@@ -367,6 +367,7 @@
     <a class="cta-visit" href="/contact.html">✦ Plan Visit</a>
   </div>
 </body>
+<script src="/api.js"></script>
 <script>
   // Render dashboard-managed events + latest sermon on the homepage
   (function () {
@@ -389,35 +390,34 @@
       return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     }
 
-    // ── Events ──
-    let events = [];
-    try { events = JSON.parse(localStorage.getItem('nbmc_data_events') || '[]'); } catch (e) {}
-    const today = new Date(new Date().toDateString());
-    const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    const publicEvents = events
-      .filter(e => e.is_public && e.date && new Date(e.date) >= today)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    if (publicEvents.length > 0) {
-      const top3 = publicEvents.slice(0, 3);
-      const host = document.getElementById('home-events-list');
-      host.innerHTML = top3.map((e, i) => {
-        const d = new Date(e.date + 'T12:00:00');
-        const colorClass = i === 1 ? ' blue' : '';
-        return `
-          <div class="event-row">
-            <div class="date-badge${colorClass}"><span>${MONTHS[d.getMonth()]}</span><strong>${String(d.getDate()).padStart(2, '0')}</strong></div>
-            <div>
-              <h4>${esc(e.title)}</h4>
-              <p>${[e.start_time ? fmtTime12(e.start_time) : '', esc(e.location || '')].filter(Boolean).join(' • ')}</p>
-            </div>
-            <strong>→</strong>
-          </div>`;
-      }).join('');
-    }
+    // ── Events (fetched from the API) ──
+    nbmcGetEvents().then(events => {
+      const today = new Date(new Date().toDateString());
+      const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      const publicEvents = events
+        .filter(e => e.is_public && e.date && new Date(e.date) >= today)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      if (publicEvents.length > 0) {
+        const top3 = publicEvents.slice(0, 3);
+        const host = document.getElementById('home-events-list');
+        host.innerHTML = top3.map((e, i) => {
+          const d = new Date(e.date + 'T12:00:00');
+          const colorClass = i === 1 ? ' blue' : '';
+          return `
+            <div class="event-row">
+              <div class="date-badge${colorClass}"><span>${MONTHS[d.getMonth()]}</span><strong>${String(d.getDate()).padStart(2, '0')}</strong></div>
+              <div>
+                <h4>${esc(e.title)}</h4>
+                <p>${[e.start_time ? fmtTime12(e.start_time) : '', esc(e.location || '')].filter(Boolean).join(' • ')}</p>
+              </div>
+              <strong>→</strong>
+            </div>`;
+        }).join('');
+      }
+    });
 
-    // ── Latest Sermon ──
-    let sermons = [];
-    try { sermons = JSON.parse(localStorage.getItem('nbmc_data_sermons') || '[]'); } catch (e) {}
+    // ── Latest Sermon (fetched from the API) ──
+    nbmcGetSermons().then(sermons => {
     if (sermons.length > 0) {
       const sorted = sermons.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       const latest = sorted[0];
@@ -443,38 +443,34 @@
         }
       }
     }
+    });
 
     // ── Wire footer address/phone/email from settings (same as contact.html) ──
-    function sget(k, fb) {
-      try {
-        const list = JSON.parse(localStorage.getItem('nbmc_data_settings') || '[]');
-        const row = list.find(x => x.key === k);
-        return row && row.value ? row.value : fb;
-      } catch (e) { return fb; }
-    }
-    const phone = sget('phone', '(555) 123-4567');
-    const addr1 = sget('address', '2801 NW 170th Street');
-    document.querySelectorAll('.contact-item').forEach(item => {
-      const small = item.querySelector('small');
-      const strong = item.querySelector('strong');
-      if (!small || !strong) return;
-      const label = small.textContent.trim();
-      if (label === 'Visit Us') strong.innerHTML = esc(addr1) + '<br>Miami Gardens, FL 33056';
-      if (label === 'Call Us') strong.textContent = phone;
-    });
-    document.querySelectorAll('footer .footer-grid ul').forEach(ul => {
-      ul.querySelectorAll('li').forEach(li => {
-        const t = li.textContent.trim();
-        if (t === '(555) 123-4567') li.textContent = phone;
-        if (t === '2801 NW 170th Street') li.textContent = addr1;
+    nbmcGetSettings().then(settings => {
+      const phone = nbmcGetSetting(settings, 'phone', '(555) 123-4567');
+      const addr1 = nbmcGetSetting(settings, 'address', '2801 NW 170th Street');
+      document.querySelectorAll('.contact-item').forEach(item => {
+        const small = item.querySelector('small');
+        const strong = item.querySelector('strong');
+        if (!small || !strong) return;
+        const label = small.textContent.trim();
+        if (label === 'Visit Us') strong.innerHTML = esc(addr1) + '<br>Miami Gardens, FL 33056';
+        if (label === 'Call Us') strong.textContent = phone;
       });
-    });
-    // Mobile CTA phone
-    const ctaCall = document.querySelector('.mobile-cta .cta-call');
-    if (ctaCall && ctaCall.textContent.includes('Call')) {
-      const digits = phone.replace(/[^\d+]/g, '');
-      ctaCall.href = 'tel:' + digits;
-    }
+      document.querySelectorAll('footer .footer-grid ul').forEach(ul => {
+        ul.querySelectorAll('li').forEach(li => {
+          const t = li.textContent.trim();
+          if (t === '(555) 123-4567') li.textContent = phone;
+          if (t === '2801 NW 170th Street') li.textContent = addr1;
+        });
+      });
+      // Mobile CTA phone
+      const ctaCall = document.querySelector('.mobile-cta .cta-call');
+      if (ctaCall && ctaCall.textContent.includes('Call')) {
+        const digits = phone.replace(/[^\d+]/g, '');
+        ctaCall.href = 'tel:' + digits;
+      }
+    })();
   })();
 
   // Highlight active nav link based on scroll position
@@ -511,35 +507,26 @@
     }
   })();
 
-  // SMS opt-in form → save to localStorage so /dashboard/sms-signups.html shows it
+  // SMS opt-in form → POST to the API so staff see it in the dashboard
   (function () {
     const form = document.getElementById('sms-optin-form');
     if (!form) return;
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       if (!data.consent) { alert('Please agree to receive text messages before submitting.'); return; }
       try {
-        const KEY = 'nbmc_data_sms_signups';
-        const list = JSON.parse(localStorage.getItem(KEY) || '[]');
-        const item = {
-          id: 's' + Date.now().toString(36),
+        await nbmcSubmitSmsSignup({
           first_name: (data.first_name || '').trim(),
-          last_name: (data.last_name || '').trim(),
-          phone: (data.phone || '').trim(),
-          email: (data.email || '').trim(),
-          opt_in_status: 'Opted In',
-          opt_in_date: new Date().toISOString(),
-          opt_in_source: 'Website Form',
-          consent_text: data.consent || '',
-          tags: [],
-          member_status: 'Guest',
-          notes: 'Submitted via public website form.',
-          created_at: new Date().toISOString(),
-        };
-        list.unshift(item);
-        localStorage.setItem(KEY, JSON.stringify(list));
-      } catch (err) { /* localStorage unavailable, fail silently */ }
+          last_name:  (data.last_name  || '').trim(),
+          phone:      (data.phone      || '').trim(),
+          email:      (data.email      || '').trim(),
+          consent:    data.consent || '',
+        });
+      } catch (err) {
+        // Don't block the UX — show the success state regardless, but log.
+        console.warn('[sms-optin] submit failed:', err.message);
+      }
       form.style.display = 'none';
       document.getElementById('sms-optin-success').style.display = 'block';
     });

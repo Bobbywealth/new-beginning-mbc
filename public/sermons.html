@@ -193,9 +193,11 @@
       </div>
     </footer>
 </div>
+<script src="/api.js"></script>
 <script>
   // Render dashboard-managed sermons (overrides hardcoded fallback if any exist)
   (function () {
+    nbmcGetSermons().then(list => {
     function esc(s) {
       const d = document.createElement('div');
       d.textContent = s == null ? '' : String(s);
@@ -206,8 +208,7 @@
       const d = new Date(dateStr + 'T12:00:00');
       return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase();
     }
-    let list = [];
-    try { list = JSON.parse(localStorage.getItem('nbmc_data_sermons') || '[]'); } catch (e) {}
+    list = Array.isArray(list) ? list : [];
     if (list.length === 0) return; // keep hardcoded fallback
 
     const sorted = list.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -245,6 +246,7 @@
           ${s.youtube_link ? `<a class="btn btn-outline" href="${esc(s.youtube_link)}" target="_blank" rel="noopener" style="margin-top: 12px;">Watch →</a>` : ''}
         </article>`).join('');
     }
+    });
   })();
 
   // Highlight active nav link based on scroll position
