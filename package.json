@@ -1,0 +1,10 @@
+{
+  "name": "new-beginning-mbc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root shim — re-exports backend/server.js for Render's startCommand",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
