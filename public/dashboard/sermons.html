@@ -74,6 +74,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 mountShell('sermons', 'Sermons');
 let currentSermonId = null;
@@ -125,7 +126,7 @@ function openSermonModal(id) {
   openModal('sermon-modal');
 }
 
-document.getElementById('sermon-save-btn').addEventListener('click', () => {
+document.getElementById('sermon-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('sermon-form');
   const data = {
     title: form.title.value.trim(),
@@ -139,27 +140,34 @@ document.getElementById('sermon-save-btn').addEventListener('click', () => {
     featured: form.featured.checked,
   };
   if (!data.title) { toast('Title is required.', 'warning'); return; }
-  if (currentSermonId) {
-    store_update('sermons', currentSermonId, data);
-    toast('Sermon updated.', 'success');
-  } else {
-    store_add('sermons', data);
-    toast('Sermon added. Refresh public site to see it.', 'success');
+  try {
+    if (currentSermonId) {
+      await store_update('sermons', currentSermonId, data);
+      toast('Sermon updated.', 'success');
+    } else {
+      await store_add('sermons', data);
+      toast('Sermon added. Refresh public site to see it.', 'success');
+    }
+    closeModal('sermon-modal');
+    renderSermons();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('sermon-modal');
-  renderSermons();
 });
 
-function deleteSermon(id) {
+async function deleteSermon(id) {
   if (!confirm('Delete this sermon?')) return;
-  store_delete('sermons', id);
-  toast('Sermon deleted.', 'success');
-  renderSermons();
+  try {
+    await store_delete('sermons', id);
+    toast('Sermon deleted.', 'success');
+    renderSermons();
+  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
 }
 
 if (window.location.hash === '#add') setTimeout(() => openSermonModal(), 100);
 renderSermons();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

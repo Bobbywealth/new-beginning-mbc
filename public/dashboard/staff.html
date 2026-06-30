@@ -102,6 +102,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 if (!isRole('admin')) { window.location.href = '/dashboard/index.html'; throw new Error('admin only'); }
 mountShell('staff', 'Staff Users');
@@ -158,7 +159,7 @@ function openStaffModal(id) {
   openModal('staff-modal');
 }
 
-document.getElementById('staff-save-btn').addEventListener('click', () => {
+document.getElementById('staff-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('staff-form');
   const perms = Array.from(document.querySelectorAll('input[name="perm"]:checked')).map(c => c.value);
   if (form.role.value === 'admin') perms.push('*');
@@ -171,15 +172,17 @@ document.getElementById('staff-save-btn').addEventListener('click', () => {
     status: form.status.value,
   };
   if (!data.name || !data.email) { toast('Name and email required.', 'warning'); return; }
-  if (currentStaffId) {
-    store_update('staff', currentStaffId, data);
-    toast('User updated.', 'success');
-  } else {
-    store_add('staff', data);
-    toast('Staff user invited (demo — no email sent).', 'success');
-  }
-  closeModal('staff-modal');
-  renderStaff();
+  try {
+    if (currentStaffId) {
+      await store_update('staff', currentStaffId, data);
+      toast('User updated.', 'success');
+    } else {
+      await store_add('staff', data);
+      toast('Staff user invited (demo — no email sent).', 'success');
+    }
+    closeModal('staff-modal');
+    renderStaff();
+  } catch (e) { toast('Save failed: ' + e.message, 'error'); }
 });
 
 function resetPassword(id) {
@@ -189,13 +192,15 @@ function resetPassword(id) {
   if (np !== null) toast('Reset link sent to ' + s.email + ' (demo).', 'success');
 }
 
-function toggleUser(id) {
+async function toggleUser(id) {
   const s = store_get('staff', id);
   if (!s) return;
   const next = s.status === 'Active' ? 'Disabled' : 'Active';
-  store_update('staff', id, { status: next });
-  toast('User ' + next.toLowerCase() + '.', 'success');
-  renderStaff();
+  try {
+    await store_update('staff', id, { status: next });
+    toast('User ' + next.toLowerCase() + '.', 'success');
+    renderStaff();
+  } catch (e) { toast('Update failed: ' + e.message, 'error'); }
 }
 
 function renderResets() {
@@ -244,6 +249,7 @@ function dismissReset(id) {
 renderStaff();
 renderResets();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

@@ -74,55 +74,142 @@ function isRole(...roles) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  DATA STORE (localStorage)                                                */
+/*  DATA STORE (API + in-memory cache)                                        */
 /* -------------------------------------------------------------------------- */
+/* The dashboard now reads/writes through new-beginning-mbc-api (Render).      */
+/* An in-memory cache is hydrated on page load so existing synchronous        */
+/* store_list() / store_get() call sites keep working unchanged.              */
+/* store_add() / store_update() / store_delete() are async (call API + cache).*/
 
-const STORE_KEY_PREFIX = 'nbmc_data_';
+const API_BASE = 'https://new-beginning-mbc-api.onrender.com';
+const _cache = new Map();
 
-function store_list(key) {
+// Map localStorage-style keys to API endpoints
+const KEY_TO_ENDPOINT = {
+  members:         '/api/members',
+  sms_signups:     '/api/sms-signups',
+  events:          '/api/events',
+  sermons:         '/api/sermons',
+  prayer_requests: '/api/prayer-requests',
+  templates:       '/api/templates',
+  message_history: '/api/message-history',
+  staff:           '/api/staff',
+  // 'settings' is handled separately below (per-key PUT)
+  // 'password_resets' is purely local cache (no backend table yet)
+};
+
+async function _api(method, path, body) {
+  const opts = {
+    method,
+    headers: body !== undefined ? { 'Content-Type': 'application/json' } : {},
+  };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`API ${method} ${path} → ${res.status} ${text}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function hydrateStores() {
+  // Pull every list endpoint in parallel
+  await Promise.all(
+    Object.entries(KEY_TO_ENDPOINT).map(async ([key, ep]) => {
+      try {
+        const data = await _api('GET', ep);
+        _cache.set(key, Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.warn(`[hydrate] ${key}:`, e.message);
+        _cache.set(key, _cache.get(key) || []);
+      }
+    })
+  );
+  // settings is shaped as rows of {key, value, updated_by, ...}
   try {
-    const raw = localStorage.getItem(STORE_KEY_PREFIX + key);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
+    const s = await _api('GET', '/api/settings');
+    _cache.set('settings', Array.isArray(s) ? s : []);
+  } catch (e) {
+    console.warn('[hydrate] settings:', e.message);
+    _cache.set('settings', _cache.get('settings') || []);
+  }
+  // password_resets stays purely local — no backend table yet
+  if (!_cache.has('password_resets')) _cache.set('password_resets', []);
+
+  console.log('[hydrate] stores ready:', Object.fromEntries(
+    [..._cache.entries()].map(([k, v]) => [k, Array.isArray(v) ? v.length : 0])
+  ));
 }
 
+// Exposed globally — HTML pages wrap their inline scripts in this
+window.storesReady = hydrateStores();
+
+// ---- Sync reads (unchanged call signatures) ----
+function store_list(key) {
+  return _cache.get(key) || [];
+}
+function store_get(key, id) {
+  return store_list(key).find(x => x.id === id) || null;
+}
 function store_set(key, list) {
-  localStorage.setItem(STORE_KEY_PREFIX + key, JSON.stringify(list));
+  _cache.set(key, list);
 }
 
-function store_add(key, item) {
+// ---- Async writes (call API, then refresh cache) ----
+async function store_add(key, item) {
+  const ep = KEY_TO_ENDPOINT[key];
+  if (ep) {
+    const created = await _api('POST', ep, item);
+    const list = store_list(key);
+    list.unshift(created);
+    _cache.set(key, list);
+    return created;
+  }
+  // Local-only fallback (e.g. password_resets)
   const list = store_list(key);
   item.id = item.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
   item.created_at = item.created_at || new Date().toISOString();
   item.updated_at = new Date().toISOString();
   list.unshift(item);
-  store_set(key, list);
+  _cache.set(key, list);
   return item;
 }
 
-function store_update(key, id, patch) {
+async function store_update(key, id, patch) {
+  const ep = KEY_TO_ENDPOINT[key];
+  if (ep) {
+    const updated = await _api('PUT', `${ep}/${encodeURIComponent(id)}`, patch);
+    const list = store_list(key);
+    const i = list.findIndex(x => x.id === id);
+    if (i !== -1) list[i] = updated;
+    _cache.set(key, list);
+    return updated;
+  }
+  // Local-only fallback
   const list = store_list(key);
   const i = list.findIndex(x => x.id === id);
   if (i === -1) return null;
   list[i] = { ...list[i], ...patch, updated_at: new Date().toISOString() };
-  store_set(key, list);
+  _cache.set(key, list);
   return list[i];
 }
 
-function store_delete(key, id) {
-  const list = store_list(key).filter(x => x.id !== id);
-  store_set(key, list);
+async function store_delete(key, id) {
+  const ep = KEY_TO_ENDPOINT[key];
+  if (ep) {
+    try { await _api('DELETE', `${ep}/${encodeURIComponent(id)}`); }
+    catch (e) { console.warn(`[store_delete] ${key}/${id}:`, e.message); }
+  }
+  _cache.set(key, store_list(key).filter(x => x.id !== id));
 }
 
-function store_get(key, id) {
-  return store_list(key).find(x => x.id === id) || null;
-}
-
-/* Seed sample data on first load so the demo doesn't feel empty */
+/* Seed sample data on first load so the demo doesn't feel empty
+   (No-op: data now lives in the API. The DB starts empty. Add real records via the dashboard or POST to the API.) */
 function seedIfEmpty() {
-  if (localStorage.getItem('nbmc_seeded_v1')) return;
-  const now = new Date().toISOString();
-  const today = new Date();
+  return;
+}
+function _legacySeedRunOnce() {
 
   // Members (5 sample)
   store_set('members', [
@@ -202,6 +289,7 @@ function seedIfEmpty() {
 
   localStorage.setItem('nbmc_seeded_v1', '1');
 }
+void _legacySeedRunOnce;
 
 /* -------------------------------------------------------------------------- */
 /*  SETTINGS helpers                                                          */
@@ -213,17 +301,27 @@ function setting_get(key) {
   return row ? row.value : '';
 }
 
-function setting_set(key, value, updatedBy) {
-  const list = store_list('settings');
-  const i = list.findIndex(s => s.key === key);
-  if (i === -1) {
-    list.push({ id: 'sg' + Date.now().toString(36), key, value, updated_by: updatedBy, updated_at: new Date().toISOString() });
-  } else {
-    list[i].value = value;
-    list[i].updated_by = updatedBy;
-    list[i].updated_at = new Date().toISOString();
+async function setting_set(key, value, updatedBy) {
+  try {
+    const updated = await _api('PUT', `/api/settings/${encodeURIComponent(key)}`, {
+      value: value ?? '',
+      updated_by: updatedBy || 'system',
+    });
+    const list = store_list('settings');
+    const i = list.findIndex(s => s.key === key);
+    if (i === -1) list.push(updated);
+    else list[i] = updated;
+    _cache.set('settings', list);
+    return updated;
+  } catch (e) {
+    console.error('[setting_set]', key, e.message);
+    throw e;
   }
-  store_set('settings', list);
+}
+
+async function setting_get_async(key) {
+  const row = store_list('settings').find(s => s.key === key);
+  return row ? row.value : '';
 }
 
 /* -------------------------------------------------------------------------- */

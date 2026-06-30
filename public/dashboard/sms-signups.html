@@ -107,6 +107,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 mountShell('sms', 'SMS Sign-Ups');
 
@@ -178,7 +179,7 @@ function openSmsModal(id) {
   openModal('sms-modal');
 }
 
-document.getElementById('sms-save-btn').addEventListener('click', () => {
+document.getElementById('sms-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('sms-form');
   const data = {
     first_name: form.first_name.value.trim(),
@@ -197,29 +198,37 @@ document.getElementById('sms-save-btn').addEventListener('click', () => {
     toast('First name, last name, and phone are required.', 'warning');
     return;
   }
-  if (currentSmsId) {
-    store_update('sms_signups', currentSmsId, data);
-    toast('Sign-up updated.', 'success');
-  } else {
-    store_add('sms_signups', data);
-    toast('Sign-up added.', 'success');
+  try {
+    if (currentSmsId) {
+      await store_update('sms_signups', currentSmsId, data);
+      toast('Sign-up updated.', 'success');
+    } else {
+      await store_add('sms_signups', data);
+      toast('Sign-up added.', 'success');
+    }
+    closeModal('sms-modal');
+    renderSms();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('sms-modal');
-  renderSms();
 });
 
-function approveSms(id) {
-  store_update('sms_signups', id, { opt_in_status: 'Opted In', opt_in_date: new Date().toISOString() });
-  toast('Marked as Opted In.', 'success');
-  renderSms();
+async function approveSms(id) {
+  try {
+    await store_update('sms_signups', id, { opt_in_status: 'Opted In', opt_in_date: new Date().toISOString() });
+    toast('Marked as Opted In.', 'success');
+    renderSms();
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
 }
-function unsubSms(id) {
+async function unsubSms(id) {
   if (!confirm('Mark this number as Unsubscribed?')) return;
-  store_update('sms_signups', id, { opt_in_status: 'Unsubscribed' });
-  toast('Marked as Unsubscribed.', 'success');
-  renderSms();
+  try {
+    await store_update('sms_signups', id, { opt_in_status: 'Unsubscribed' });
+    toast('Marked as Unsubscribed.', 'success');
+    renderSms();
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
 }
-function convertToMember(id) {
+async function convertToMember(id) {
   const s = store_get('sms_signups', id);
   if (!s) return;
   if (s.opt_in_status !== 'Opted In') {
@@ -238,14 +247,17 @@ function convertToMember(id) {
     tags: ['From SMS Sign-Up'],
     notes: 'Imported from SMS sign-ups on ' + new Date().toLocaleDateString(),
   };
-  store_add('members', member);
-  store_update('sms_signups', id, { member_status: 'Member' });
-  toast('Added as member: ' + s.first_name + ' ' + s.last_name, 'success');
-  renderSms();
+  try {
+    await store_add('members', member);
+    await store_update('sms_signups', id, { member_status: 'Member' });
+    toast('Added as member: ' + s.first_name + ' ' + s.last_name, 'success');
+    renderSms();
+  } catch (e) { toast('Failed: ' + e.message, 'error'); }
 }
 
 renderSms();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

@@ -194,6 +194,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 if (!hasPerm('view_comms')) { window.location.href = '/login.html'; throw new Error('no perm'); }
 mountShell('comms', 'Communications');
@@ -241,7 +242,7 @@ document.getElementById('send-schedule').addEventListener('change', (e) => {
   document.getElementById('send-when').style.display = e.target.checked ? 'block' : 'none';
 });
 
-function sendMessage() {
+async function sendMessage() {
   const body = document.getElementById('send-body').value.trim();
   if (!body) { toast('Message body is required.', 'warning'); return; }
   const v = document.getElementById('send-recipient').value;
@@ -263,19 +264,23 @@ function sendMessage() {
   const fullBody = body + '\n\n' + footer;
   const session = getSession();
 
-  store_add('message_history', {
-    message_body: body,
-    recipient_type: recipientLabel,
-    recipient_count: count,
-    sent_at: scheduled ? new Date(when).toISOString() : new Date().toISOString(),
-    sent_by: session.name,
-    status: scheduled ? 'Scheduled' : 'Delivered',
-    full_body: fullBody,
-  });
-  toast(scheduled ? 'Scheduled for ' + new Date(when).toLocaleString() : 'Sent to ' + count + ' recipients!', 'success');
-  document.getElementById('send-body').value = '';
-  updateCharCount();
-  renderHistory();
+  try {
+    await store_add('message_history', {
+      message_body: body,
+      recipient_type: recipientLabel,
+      recipient_count: count,
+      sent_at: scheduled ? new Date(when).toISOString() : new Date().toISOString(),
+      sent_by: session.name,
+      status: scheduled ? 'Scheduled' : 'Delivered',
+      full_body: fullBody,
+    });
+    toast(scheduled ? 'Scheduled for ' + new Date(when).toLocaleString() : 'Sent to ' + count + ' recipients!', 'success');
+    document.getElementById('send-body').value = '';
+    updateCharCount();
+    renderHistory();
+  } catch (e) {
+    toast('Send failed: ' + e.message, 'error');
+  }
 }
 
 // Templates
@@ -325,27 +330,33 @@ function openTemplateModal(id) {
   }
   openModal('template-modal');
 }
-document.getElementById('tpl-save-btn').addEventListener('click', () => {
+document.getElementById('tpl-save-btn').addEventListener('click', async () => {
   const title = document.getElementById('tpl-title').value.trim();
   const cat = document.getElementById('tpl-category').value;
   const body = document.getElementById('tpl-body').value.trim();
   if (!title || !body) { toast('Title and body required.', 'warning'); return; }
   const session = getSession();
-  if (currentTemplateId) {
-    store_update('templates', currentTemplateId, { title, category: cat, message_body: body });
-    toast('Template updated.', 'success');
-  } else {
-    store_add('templates', { title, category: cat, message_body: body, created_by: session.email });
-    toast('Template created.', 'success');
+  try {
+    if (currentTemplateId) {
+      await store_update('templates', currentTemplateId, { title, category: cat, message_body: body });
+      toast('Template updated.', 'success');
+    } else {
+      await store_add('templates', { title, category: cat, message_body: body, created_by: session.email });
+      toast('Template created.', 'success');
+    }
+    closeModal('template-modal');
+    renderTemplates();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('template-modal');
-  renderTemplates();
 });
-function deleteTemplate(id) {
+async function deleteTemplate(id) {
   if (!confirm('Delete this template?')) return;
-  store_delete('templates', id);
-  toast('Template deleted.', 'success');
-  renderTemplates();
+  try {
+    await store_delete('templates', id);
+    toast('Template deleted.', 'success');
+    renderTemplates();
+  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
 }
 renderTemplates();
 
@@ -390,15 +401,17 @@ if (isRole('admin')) {
   document.getElementById('set-optin').value = setting_get('optin_language') || '';
   document.getElementById('set-unsub').value = setting_get('unsubscribe_language') || '';
   document.getElementById('compliance-footer').textContent = setting_get('unsubscribe_language') || 'Reply STOP to unsubscribe. For help, reply HELP.';
-  document.getElementById('save-sms-settings-btn').addEventListener('click', () => {
+  document.getElementById('save-sms-settings-btn').addEventListener('click', async () => {
     const session = getSession();
-    setting_set('twilio_sid', document.getElementById('set-twilio-sid').value, session.email);
-    setting_set('twilio_token', document.getElementById('set-twilio-token').value, session.email);
-    setting_set('twilio_phone', document.getElementById('set-twilio-phone').value, session.email);
-    setting_set('optin_language', document.getElementById('set-optin').value, session.email);
-    setting_set('unsubscribe_language', document.getElementById('set-unsub').value, session.email);
-    document.getElementById('compliance-footer').textContent = document.getElementById('set-unsub').value || 'Reply STOP to unsubscribe. For help, reply HELP.';
-    toast('SMS settings saved.', 'success');
+    try {
+      await setting_set('twilio_sid', document.getElementById('set-twilio-sid').value, session.email);
+      await setting_set('twilio_token', document.getElementById('set-twilio-token').value, session.email);
+      await setting_set('twilio_phone', document.getElementById('set-twilio-phone').value, session.email);
+      await setting_set('optin_language', document.getElementById('set-optin').value, session.email);
+      await setting_set('unsubscribe_language', document.getElementById('set-unsub').value, session.email);
+      document.getElementById('compliance-footer').textContent = document.getElementById('set-unsub').value || 'Reply STOP to unsubscribe. For help, reply HELP.';
+      toast('SMS settings saved.', 'success');
+    } catch (e) { toast('Save failed: ' + e.message, 'error'); }
   });
   document.querySelector('#comms-tabs .tab[data-tab="sms-settings"]').style.display = '';
 } else {
@@ -416,6 +429,7 @@ if (window.location.hash.startsWith('#send')) {
   document.querySelector('#comms-tabs .tab[data-tab="send"]').click();
 }
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

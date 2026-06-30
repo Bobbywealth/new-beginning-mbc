@@ -135,6 +135,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 if (!isRole('admin')) { window.location.href = '/dashboard/index.html'; throw new Error('admin only'); }
 mountShell('settings', 'Settings');
@@ -177,13 +178,17 @@ document.getElementById('giving-cashapp').value = setting_get('giving_cashapp') 
 document.getElementById('giving-applepay').value = setting_get('giving_applepay') || '';
 document.getElementById('giving-intro').value = setting_get('giving_intro') || '';
 
-function saveGroup(fieldIds, keys) {
+async function saveGroup(fieldIds, keys) {
   const session = getSession();
-  fieldIds.forEach((id, i) => {
-    const v = document.getElementById(id).value;
-    setting_set(keys[i], v, session.email);
-  });
-  toast('Saved.', 'success');
+  try {
+    for (let i = 0; i < fieldIds.length; i++) {
+      const v = document.getElementById(fieldIds[i]).value;
+      await setting_set(keys[i], v, session.email);
+    }
+    toast('Saved.', 'success');
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
+  }
 }
 
 document.getElementById('save-church-btn').addEventListener('click', () => saveGroup(
@@ -228,6 +233,7 @@ document.getElementById('test-twilio-btn').addEventListener('click', () => {
   }
 });
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

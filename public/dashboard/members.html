@@ -150,6 +150,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 mountShell('members', 'Members');
 
@@ -228,7 +229,7 @@ function openMemberModal(id) {
   openModal('member-modal');
 }
 
-document.getElementById('member-save-btn').addEventListener('click', () => {
+document.getElementById('member-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('member-form');
   const data = {
     first_name: form.first_name.value.trim(),
@@ -247,15 +248,19 @@ document.getElementById('member-save-btn').addEventListener('click', () => {
     toast('First and last name are required.', 'warning');
     return;
   }
-  if (currentMemberId) {
-    store_update('members', currentMemberId, data);
-    toast('Member updated.', 'success');
-  } else {
-    store_add('members', data);
-    toast('Member added.', 'success');
+  try {
+    if (currentMemberId) {
+      await store_update('members', currentMemberId, data);
+      toast('Member updated.', 'success');
+    } else {
+      await store_add('members', data);
+      toast('Member added.', 'success');
+    }
+    closeModal('member-modal');
+    renderMembers();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('member-modal');
-  renderMembers();
 });
 
 function openMemberDetail(id) {
@@ -291,14 +296,18 @@ document.getElementById('member-message-btn').addEventListener('click', () => {
   window.location.href = '/dashboard/communications.html#send&member=' + currentMemberId;
 });
 
-function archiveCurrentMember() {
+async function archiveCurrentMember() {
   if (!currentMemberId) return;
   if (!confirm('Archive this member? They will be removed from the active list.')) return;
   const m = store_get('members', currentMemberId);
-  store_update('members', currentMemberId, { membership_status: 'Inactive', archived_at: new Date().toISOString() });
-  toast('Member archived.', 'success');
-  closeModal('member-detail');
-  renderMembers();
+  try {
+    await store_update('members', currentMemberId, { membership_status: 'Inactive', archived_at: new Date().toISOString() });
+    toast('Member archived.', 'success');
+    closeModal('member-detail');
+    renderMembers();
+  } catch (e) {
+    toast('Archive failed: ' + e.message, 'error');
+  }
 }
 
 function exportCSV(key) {
@@ -323,6 +332,7 @@ if (window.location.hash === '#add') {
 
 renderMembers();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

@@ -132,8 +132,9 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
     mountShell('overview', 'Overview');
-    
+
     const session = mountShell('overview', 'Overview');
     document.getElementById('breadcrumb').textContent = 'Dashboard';
     document.title = 'Dashboard — New Beginning MBC';
@@ -239,6 +240,7 @@
       sermonEl.innerHTML = '<div class="empty"><div class="empty-icon">▶</div><p>No sermons yet.</p></div>';
     }
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

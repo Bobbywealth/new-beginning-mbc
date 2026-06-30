@@ -94,6 +94,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 mountShell('prayer', 'Prayer Requests');
 let currentPrayerId = null;
@@ -167,7 +168,7 @@ function openPrayerModal(id) {
   openModal('prayer-modal');
 }
 
-document.getElementById('prayer-save-btn').addEventListener('click', () => {
+document.getElementById('prayer-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('prayer-form');
   const data = {
     name: form.name.value.trim(),
@@ -181,20 +182,25 @@ document.getElementById('prayer-save-btn').addEventListener('click', () => {
     notes: form.notes.value.trim(),
   };
   if (!data.request_text) { toast('Prayer request text required.', 'warning'); return; }
-  if (currentPrayerId) {
-    store_update('prayer_requests', currentPrayerId, data);
-    toast('Request updated.', 'success');
-  } else {
-    store_add('prayer_requests', data);
-    toast('Prayer request added.', 'success');
+  try {
+    if (currentPrayerId) {
+      await store_update('prayer_requests', currentPrayerId, data);
+      toast('Request updated.', 'success');
+    } else {
+      await store_add('prayer_requests', data);
+      toast('Prayer request added.', 'success');
+    }
+    closeModal('prayer-modal');
+    renderPrayer();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('prayer-modal');
-  renderPrayer();
 });
 
 if (window.location.hash === '#add') setTimeout(() => openPrayerModal(), 100);
 renderPrayer();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>

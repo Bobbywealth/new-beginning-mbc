@@ -89,6 +89,7 @@
   </div>
   <script src="/dashboard/dashboard.js"></script>
   <script>
+window.storesReady.then(() => {
 
 mountShell('events', 'Events');
 let currentEventId = null;
@@ -159,7 +160,7 @@ function openEventModal(id) {
   openModal('event-modal');
 }
 
-document.getElementById('event-save-btn').addEventListener('click', () => {
+document.getElementById('event-save-btn').addEventListener('click', async () => {
   const form = document.getElementById('event-form');
   const data = {
     title: form.title.value.trim(),
@@ -175,27 +176,34 @@ document.getElementById('event-save-btn').addEventListener('click', () => {
     text_reminder_enabled: form.text_reminder_enabled.checked,
   };
   if (!data.title || !data.date) { toast('Title and date are required.', 'warning'); return; }
-  if (currentEventId) {
-    store_update('events', currentEventId, data);
-    toast('Event updated.', 'success');
-  } else {
-    store_add('events', data);
-    toast('Event added. Refresh the public site to see it.', 'success');
+  try {
+    if (currentEventId) {
+      await store_update('events', currentEventId, data);
+      toast('Event updated.', 'success');
+    } else {
+      await store_add('events', data);
+      toast('Event added. Refresh the public site to see it.', 'success');
+    }
+    closeModal('event-modal');
+    renderEvents();
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'error');
   }
-  closeModal('event-modal');
-  renderEvents();
 });
 
-function deleteEvent(id) {
+async function deleteEvent(id) {
   if (!confirm('Delete this event?')) return;
-  store_delete('events', id);
-  toast('Event deleted.', 'success');
-  renderEvents();
+  try {
+    await store_delete('events', id);
+    toast('Event deleted.', 'success');
+    renderEvents();
+  } catch (e) { toast('Delete failed: ' + e.message, 'error'); }
 }
 
 if (window.location.hash === '#add') setTimeout(() => openEventModal(), 100);
 renderEvents();
 
+}); // /window.storesReady.then
   </script>
 </body>
 </html>
