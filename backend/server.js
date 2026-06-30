@@ -173,8 +173,13 @@ function nowIso() {
 
 // Generic CRUD factory. Tables whose primary key is a TEXT id supplied by
 // the client (mirrors the dashboard's localStorage id style).
-function makeCrud(table) {
+// `jsonbCols` lists columns that hold JSONB — pg sends JS arrays as Postgres
+// array literals by default, which jsonb columns reject, so we JSON.stringify
+// those values before binding.
+function makeCrud(table, jsonbCols = []) {
   const router = express.Router();
+  const isJsonb = (col, v) =>
+    jsonbCols.includes(col) && v !== null && typeof v === 'object';
 
   // List
   router.get('/', async (_req, res) => {
@@ -202,7 +207,7 @@ function makeCrud(table) {
       if (!cols.length) return res.status(400).json({ error: 'no fields provided' });
 
       const placeholders = cols.map((_, i) => `$${i + 2}`).join(', ');
-      const params = [id, ...cols.map(k => body[k])];
+      const params = [id, ...cols.map(k => isJsonb(k, body[k]) ? JSON.stringify(body[k]) : body[k])];
 
       const sql = `
         INSERT INTO ${table} (id, ${cols.join(', ')}, updated_at)
@@ -222,7 +227,10 @@ function makeCrud(table) {
       if (!cols.length) return res.status(400).json({ error: 'no updatable fields' });
 
       const setClause = cols.map((k, i) => `${k} = $${i + 2}`).join(', ');
-      const params = [req.params.id, ...cols.map(k => body[k])];
+      const params = [
+        req.params.id,
+        ...cols.map(k => isJsonb(k, body[k]) ? JSON.stringify(body[k]) : body[k]),
+      ];
 
       const sql = `UPDATE ${table} SET ${setClause}, updated_at = now() WHERE id = $1 RETURNING *`;
       const r = await pool.query(sql, params);
@@ -278,14 +286,14 @@ app.get('/api/health/db', async (_req, res) => {
 // CRUD routes (mirror dashboard localStorage keys)
 // ---------------------------------------------------------------------------
 
-app.use('/api/members',          makeCrud('members'));
-app.use('/api/sms-signups',      makeCrud('sms_signups'));
-app.use('/api/events',           makeCrud('events'));
-app.use('/api/sermons',          makeCrud('sermons'));
-app.use('/api/prayer-requests',  makeCrud('prayer_requests'));
-app.use('/api/templates',        makeCrud('templates'));
-app.use('/api/message-history',  makeCrud('message_history'));
-app.use('/api/staff',            makeCrud('staff'));
+app.use('/api/members',          makeCrud('members',          ['tags']));
+app.use('/api/sms-signups',      makeCrud('sms_signups',      ['tags']));
+app.use('/api/events',           makeCrud('events',           []));
+app.use('/api/sermons',          makeCrud('sermons',          []));
+app.use('/api/prayer-requests',  makeCrud('prayer_requests',  []));
+app.use('/api/templates',        makeCrud('templates',        []));
+app.use('/api/message-history',  makeCrud('message_history',  []));
+app.use('/api/staff',            makeCrud('staff',            ['perms']));
 
 // Settings is a key/value store (different shape)
 app.get('/api/settings', async (_req, res) => {
